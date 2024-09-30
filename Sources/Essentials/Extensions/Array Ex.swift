@@ -148,6 +148,28 @@ public extension Sequence {
         return result
     }
     
+    /// Returns the maximum element of the sequence, by using the given feature as the comparison between elements.
+    ///
+    /// - Parameters:
+    ///   - feature: The feature to be compared.
+    ///
+    /// - Complexity: O(*n* log *n*), where *n* is the length of the sequence.
+    @inlinable
+    func max<T>(on feature: (Element) throws -> T) rethrows -> Element? where T: Comparable {
+        var max: Element?
+        var maxValue: T?
+        
+        for element in self {
+            let value = try feature(element)
+            if try max == nil || value > maxValue! {
+                max = element
+                maxValue = value
+            }
+        }
+        
+        return max
+    }
+    
 }
 
 
