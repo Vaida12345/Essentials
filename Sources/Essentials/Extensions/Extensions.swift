@@ -28,15 +28,12 @@ public extension BinaryInteger {
     
     /// Creates a integer using the given data.
     ///
-    /// - Note: If the width of `data` is greater than `Self.max`, if `self` is fixed width, the result is truncated.
+    /// - Precondition: If `data` length is not equal to bit width, the result is undefined.
     @inlinable
     init(data: Data) {
-        let tuple = UnsafeMutablePointer<UInt8>.allocate(capacity: data.count)
-        defer { tuple.deallocate() }
-        
-        data.copyBytes(to: tuple, count: data.count)
-        
-        self = tuple.withMemoryRebound(to: Self.self, capacity: 1) { $0.pointee }
+        self = data.withUnsafeBytes { (tuple: UnsafeRawBufferPointer) in
+            tuple.bindMemory(to: Self.self).baseAddress!.pointee
+        }
     }
 
 }

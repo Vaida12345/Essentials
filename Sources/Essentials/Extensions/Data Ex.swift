@@ -39,7 +39,7 @@ public extension Data {
                 }
                 
                 
-                if i == buffer.count - 2 {
+                if i != buffer.count - 1 {
                     results.append("_")
                 }
             }

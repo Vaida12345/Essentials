@@ -161,7 +161,7 @@ public extension Sequence {
         
         for element in self {
             let value = try feature(element)
-            if try max == nil || value > maxValue! {
+            if max == nil || value > maxValue! {
                 max = element
                 maxValue = value
             }
@@ -371,6 +371,71 @@ public extension Collection {
     }
         
         return nil
+    }
+    
+}
+
+
+public extension Collection where Index == Int {
+    
+    /// Retrieves the element at the given `relativeIndex`.
+    ///
+    /// Unlike the built-in `subscript`, this function takes the `startIndex` into account, enabling treating a `Slice` as a stand-alone collection.
+    ///
+    /// - Precondition: This function assumes the stride is `1`.
+    @inlinable
+    subscript(relative relativeIndex: Index) -> Element {
+        self[self.startIndex &+ relativeIndex]
+    }
+    
+    /// Retrieves the element at the given `relativeRange`.
+    ///
+    /// Unlike the built-in `subscript`, this function takes the `startIndex` into account, enabling treating a `Slice` as a stand-alone collection.
+    ///
+    /// - Precondition: This function assumes the stride is `1`.
+    @inlinable
+    subscript(relative relativeRange: Range<Index>) -> SubSequence {
+        self[self.startIndex &+ relativeRange.lowerBound ..< self.startIndex &+ relativeRange.upperBound]
+    }
+    
+    /// Retrieves the element at the given `relativeRange`.
+    ///
+    /// Unlike the built-in `subscript`, this function takes the `startIndex` into account, enabling treating a `Slice` as a stand-alone collection.
+    ///
+    /// - Precondition: This function assumes the stride is `1`.
+    @inlinable
+    subscript(relative relativeRange: ClosedRange<Index>) -> SubSequence {
+        self[self.startIndex &+ relativeRange.lowerBound ... self.startIndex &+ relativeRange.upperBound]
+    }
+    
+    /// Retrieves the element at the given `relativeRange`.
+    ///
+    /// Unlike the built-in `subscript`, this function takes the `startIndex` into account, enabling treating a `Slice` as a stand-alone collection.
+    ///
+    /// - Precondition: This function assumes the stride is `1`.
+    @inlinable
+    subscript(relative relativeRange: PartialRangeFrom<Index>) -> SubSequence {
+        self[(self.startIndex &+ relativeRange.lowerBound)...]
+    }
+    
+    /// Retrieves the element at the given `relativeRange`.
+    ///
+    /// Unlike the built-in `subscript`, this function takes the `startIndex` into account, enabling treating a `Slice` as a stand-alone collection.
+    ///
+    /// - Precondition: This function assumes the stride is `1`.
+    @inlinable
+    subscript(relative relativeRange: PartialRangeThrough<Index>) -> SubSequence {
+        self[...(self.startIndex &+ relativeRange.upperBound)]
+    }
+    
+    /// Retrieves the element at the given `relativeRange`.
+    ///
+    /// Unlike the built-in `subscript`, this function takes the `startIndex` into account, enabling treating a `Slice` as a stand-alone collection.
+    ///
+    /// - Precondition: This function assumes the stride is `1`.
+    @inlinable
+    subscript(relative relativeRange: PartialRangeUpTo<Index>) -> SubSequence {
+        self[..<(self.startIndex &+ relativeRange.upperBound)]
     }
     
 }
