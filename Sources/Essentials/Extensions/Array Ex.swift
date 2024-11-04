@@ -602,6 +602,13 @@ public extension Array {
     
     /// Returns the elements of the sequence, sorted using the given predicate as the comparison between elements.
     ///
+    /// ```swift
+    /// let students: Set = ["Kofi", "Abena", "Peter", "Kweku", "Akosua"]
+    /// let descendingStudents = students.sorted(by: >)
+    /// print(descendingStudents)
+    /// // Prints "["Peter", "Kweku", "Kofi", "Akosua", "Abena"]"
+    /// ```
+    ///
     /// - Important: Use this only when the cost is high.
     ///
     /// - Parameters:
