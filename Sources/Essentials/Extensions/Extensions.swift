@@ -16,13 +16,23 @@ import OSLog
 /// However, in bit-shift, operations are performed as if the bytes are in big-endian order.
 public extension BinaryInteger {
     
-    /// The raw data that made up the binary integer.
+    /// Calls a closure with a pointer to the object’s bytes.
     @inlinable
-    var data: Data {
+    func withUnsafeBufferPointer<Result>(_ body: (UnsafeBufferPointer<UInt8>) -> Result) -> Result {
         withUnsafePointer(to: self) { pointer in
             pointer.withMemoryRebound(to: UInt8.self, capacity: bitWidth / 8) { pointer in
-                Data(bytes: pointer, count: bitWidth / 8)
+                body(UnsafeBufferPointer(start: pointer, count: bitWidth / 8))
             }
+        }
+    }
+    
+    /// The raw data that made up the binary integer.
+    ///
+    /// - Tip: This method may not be efficient. When you want to access the raw pointer, use ``withUnsafeBufferPointer(_:)`` instead.
+    @inlinable
+    var data: Data {
+        withUnsafeBufferPointer { buffer in
+            Data(buffer: buffer)
         }
     }
     
