@@ -316,34 +316,14 @@ extension UUID {
     }
     
     /// Creates the UUID from raw data.
-    ///
-    /// - throws: ``ReadDataError``
-    ///
-    /// ## Topics
-    /// ### Potential Error
-    /// - ``ReadDataError``
     @inlinable
     public init(data: Data) throws {
-        guard data.count == 16 else { throw ReadDataError.invalidLength }
+        assert(data.count == 16, "The data length is not 16 bytes.")
         
-        let tuple = UnsafeMutablePointer<UInt8>.allocate(capacity: data.count)
-        defer { tuple.deallocate() }
-        
-        data.copyBytes(to: tuple, count: data.count)
-        
-        self.init(uuid: tuple.withMemoryRebound(to: uuid_t.self, capacity: 1) { $0.pointee })
-    }
-    
-    public enum ReadDataError: GenericError {
-        case invalidLength
-        
-        public var title: String {
-            "Invalid UUID data"
+        let uuid = data.withUnsafeBytes { (pointer: UnsafeRawBufferPointer) in
+            pointer.load(as: uuid_t.self)
         }
-        
-        public var message: String {
-            "The length is not 16 bytes"
-        }
+        self.init(uuid: uuid)
     }
     
 }
@@ -406,34 +386,6 @@ public extension VNRectangleObservation {
     
 }
 #endif
-
-
-/// Measures the execution time of `block`, for debugging.
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-@inlinable
-public func measure<T>(_ title: String, block: @Sendable () async throws -> T) async rethrows -> T {
-    let logger = Logger(subsystem: "Stratum", category: "Measure")
-    let date = Date()
-    defer {
-        logger.info("\(title), \(date.distanceToNow())")
-    }
-    
-    return try await block()
-}
-
-
-/// Measures the execution time of `block`, for debugging.
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-@inlinable
-public func measure<T>(_ title: String, block: () throws -> T) rethrows -> T {
-    let logger = Logger(subsystem: "Stratum", category: "Measure")
-    let date = Date()
-    defer {
-        logger.info("\(title), \(date.distanceToNow())")
-    }
-    
-    return try block()
-}
 
 /// Redirects the standard output and captures the result.
 @inlinable
