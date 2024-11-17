@@ -456,10 +456,10 @@ public extension RangeReplaceableCollection {
     /// - Complexity: O(*n*), where *n* is the length of this sequence.
     @inlinable
     func unique() -> Self where Element: Hashable {
-        var container: Set<Int> = []
+        var container: Set<Element> = []
         var result = Self()
         self.forEach { element in
-            guard container.insert(element.hashValue).inserted else { return }
+            guard container.insert(element).inserted else { return }
             result.append(element)
         }
         return result
