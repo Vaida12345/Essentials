@@ -55,6 +55,9 @@ public extension Data {
     }
     
     /// Encrypt data with the `key` provided.
+    ///
+    /// - Parameters:
+    ///   - key: The encryption key, 256bit size.
     @available(macOS 10.15, iOS 13, watchOS 6, *)
     @inlinable
     func encrypt(with key: SymmetricKey) throws -> Data {
@@ -62,6 +65,9 @@ public extension Data {
     }
     
     /// Decrypt data with the `key` provided.
+    ///
+    /// - Parameters:
+    ///   - key: The encryption key, 256bit size.
     @available(macOS 10.15, iOS 13, watchOS 6, *)
     @inlinable
     func decrypt(with key: SymmetricKey) throws -> Data {
