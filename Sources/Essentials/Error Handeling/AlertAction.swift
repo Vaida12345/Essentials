@@ -1,6 +1,6 @@
 //
 //  AlertAction.swift
-//  The Stratum Module
+//  The Essentials Module
 //
 //  Created by Vaida on 2023/11/12.
 //  Copyright © 2019 - 2024 Vaida. All rights reserved.

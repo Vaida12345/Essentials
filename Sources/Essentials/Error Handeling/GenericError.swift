@@ -1,6 +1,6 @@
 //
 //  GenericError.swift
-//  The FinderItem Module
+//  The Essentials Module
 //
 //  Created by Vaida on 4/4/24.
 //  Copyright © 2019 - 2024 Vaida. All rights reserved.

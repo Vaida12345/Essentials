@@ -1,6 +1,6 @@
 //
 //  Global Functions.swift
-//  The Stratum Module - Extended Functionalities
+//  The Essentials Module - Extended Functionalities
 //
 //  Created by Vaida on 6/13/24.
 //  Copyright © 2019 - 2024 Vaida. All rights reserved.

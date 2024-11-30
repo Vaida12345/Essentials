@@ -1,6 +1,6 @@
 //
 //  LocalizableError.swift
-//  The Stratum Module
+//  The Essentials Module
 //
 //  Created by Vaida on 8/11/23.
 //  Copyright © 2019 - 2024 Vaida. All rights reserved.

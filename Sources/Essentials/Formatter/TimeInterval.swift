@@ -1,6 +1,6 @@
 //
 //  TimeIntervalFormatter.swift
-//  The Stratum Module
+//  The Essentials Module
 //
 //  Created by Vaida on 2024/1/25.
 //  Copyright © 2019 - 2024 Vaida. All rights reserved.

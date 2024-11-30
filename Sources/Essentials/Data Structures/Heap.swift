@@ -1,6 +1,6 @@
 //
 //  Heap.swift
-//  The Stratum Module - Algorithms
+//  Algorithms
 //
 //  Created by Vaida on 10/18/22.
 //  Copyright © 2019 - 2024 Vaida. All rights reserved.

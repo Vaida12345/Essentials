@@ -1,6 +1,6 @@
 //
 //  Units Extensions.swift
-//  The Stratum Module - Extended Functionalities
+//  The Essentials Module - Extended Functionalities
 //
 //  Created by Vaida on 2024/2/1.
 //  Copyright © 2019 - 2024 Vaida. All rights reserved.

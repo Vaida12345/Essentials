@@ -1,6 +1,6 @@
 //
 //  NeXTStep Extensions.swift
-//  The Stratum Module - Extended Functionalities
+//  The Essentials Module - Extended Functionalities
 //
 //  Created by Vaida on 1/7/23.
 //  Copyright © 2019 - 2024 Vaida. All rights reserved.

@@ -1,6 +1,6 @@
 //
-//  The Stratum Module - Extended Functionalities
-//  The Stratum Module
+//  CoreHaptics Extensions.swift
+//  The Essentials Module - Extended Functionalities
 //
 //  Created by Vaida on 6/18/23.
 //  Copyright © 2019 - 2024 Vaida. All rights reserved.

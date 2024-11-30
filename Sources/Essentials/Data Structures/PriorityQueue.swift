@@ -1,6 +1,6 @@
 //
 //  PriorityQueue.swift
-//  The Stratum Module - Algorithms
+//  Algorithms
 //
 //  Created by Vaida on 10/18/22.
 //  Copyright © 2019 - 2024 Vaida. All rights reserved.
@@ -49,6 +49,9 @@ public struct PriorityQueue<Element, W>: CustomReflectable where W: Comparable {
     }
     
     /// Creates the queue.
+    ///
+    /// - Parameters:
+    ///   - isMaxHeap: If `true`, elements with higher `weight` will be dequeued first.
     public init(isMaxHeap: Bool = true) {
         self.contents = .init(isMaxHeap ? .maxHeap : .minHeap)
     }

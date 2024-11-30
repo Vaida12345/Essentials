@@ -1,6 +1,6 @@
 //
 //  AlertManager.swift
-//  The Stratum Module
+//  The Essentials Module
 //
 //  Created by Vaida on 5/8/22.
 //  Copyright © 2019 - 2024 Vaida. All rights reserved.
