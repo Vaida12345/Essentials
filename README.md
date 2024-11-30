@@ -1,9 +1,7 @@
 
 # The Essentials
 
-This package provides a collection of essential structures. This package is imported and exposed by all Stratum packages. 
-
-The philosophy is to provide functionalities of which Swift might lack.
+This package provides a collection of essential structures & extensions by highly integrating the Foundation and Swift with the shipped frameworks on Apple platforms.
 
 ## Getting Started
 
