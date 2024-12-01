@@ -6,6 +6,8 @@
 //  Copyright © 2019 - 2024 Vaida. All rights reserved.
 //
 
+import Foundation
+
 
 /// Returns a value clamped to a specified range.
 ///
@@ -30,4 +32,47 @@ public func clamp<T>(_ x: T, min: T? = nil, max: T? = nil) -> T where T: Compara
     } else {
         x
     }
+}
+
+
+/// Redirects the standard output and captures the result.
+@inlinable
+@available(macOS 10.15, iOS 13, watchOS 6, *)
+public func withStandardOutputCaptured(_ body: () throws -> Void) throws -> FileHandle {
+    // Create a pipe and redirect stdout
+    let pipe = Pipe()
+    let oldStdout = dup(STDOUT_FILENO)
+    dup2(pipe.fileHandleForWriting.fileDescriptor, STDOUT_FILENO)
+    
+    defer {
+        // Restore stdout
+        dup2(oldStdout, STDOUT_FILENO)
+        close(oldStdout)
+        try! pipe.fileHandleForWriting.close()
+    }
+    
+    // Print something (this will be captured)
+    try body()
+    
+    return pipe.fileHandleForReading
+}
+
+/// Redirects the standard output and captures the result.
+@inlinable
+@available(macOS 10.15, iOS 13, watchOS 6, *)
+public func withStandardOutputAsyncCaptured(_ body: () async throws -> Void) async throws -> FileHandle {
+    // Create a pipe and redirect stdout
+    let pipe = Pipe()
+    let oldStdout = dup(STDOUT_FILENO)
+    dup2(pipe.fileHandleForWriting.fileDescriptor, STDOUT_FILENO)
+    
+    // Print something (this will be captured)
+    try await body()
+    
+    // Restore stdout
+    dup2(oldStdout, STDOUT_FILENO)
+    close(oldStdout)
+    try pipe.fileHandleForWriting.close()
+    
+    return pipe.fileHandleForReading
 }

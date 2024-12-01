@@ -9,22 +9,22 @@
 import Foundation
 
 
-/// **Hierarchy**
-/// ```
-/// - Sequence (Iterator)
-///     - Collection
-///         - BidirectionalCollection
-///             - StringProtocol - - - - - - - - - - - -
-///             - RandomAccessCollection -             - String
-///         - MutableCollection          - Array       -
-///         - RangeReplaceableCollection - - - - - - - -
-/// ```
-///
-/// **Notes**
-///
-/// `Sequence` only serves as the deliverer of the `Iterator`. `Sequence` can either be stable or volatile (elements being discarded after traversal). An `Iterator` itself can conform to `Sequence` by returning `self` in `makeIterator()` if it is volatile.
-///
-/// `Collection` is a stable sequence with addressable positions.
+// **Hierarchy**
+// ```
+// - Sequence (Iterator)
+//     - Collection
+//         - BidirectionalCollection
+//             - StringProtocol - - - - - - - - - - - -
+//             - RandomAccessCollection -             - String
+//         - MutableCollection          - Array       -
+//         - RangeReplaceableCollection - - - - - - - -
+// ```
+//
+// **Notes**
+//
+// `Sequence` only serves as the deliverer of the `Iterator`. `Sequence` can either be stable or volatile (elements being discarded after traversal). An `Iterator` itself can conform to `Sequence` by returning `self` in `makeIterator()` if it is volatile.
+//
+// `Collection` is a stable sequence with addressable positions.
 public extension Sequence {
     
     /// Returns a boolean value determining whether all the elements in the array are equal given the `predicate`.
@@ -659,7 +659,7 @@ public extension Array where Element: Hashable {
     /// ╰─ab
     /// ```
     ///
-    /// - Returns: ``GroupedNode/root``
+    /// - Returns: ``GroupedNode``
     static func group(segmented: [[Element]]) -> GroupedNode {
         group(node: .init(segmented: segmented))
     }

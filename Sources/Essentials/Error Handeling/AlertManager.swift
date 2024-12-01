@@ -43,7 +43,8 @@ import ErrorManager
 /// ### Creates a manager
 ///
 /// - ``init(_:)``
-/// - ``init(title:message:)``
+/// - ``init(_:message:)``
+/// - ``init(_:message:actions:)``
 ///
 ///
 /// ### Show alert
@@ -55,7 +56,6 @@ import ErrorManager
 ///
 /// ### Actions
 ///
-/// - ``init(title:message:actions:)``
 /// - ``present(title:message:actions:)``
 /// - ``appendAction(title:isDestructive:handler:)``
 /// - ``appendingAction(title:isDestructive:handler:)``
@@ -64,8 +64,10 @@ import ErrorManager
 ///
 /// ### Handlers
 ///
-/// - ``withErrorPresented(_:)-1feng``
-/// - ``withErrorPresented(_:)-8uxls``
+/// - ``withErrorPresented(_:body:)-48tr1``
+/// - ``withErrorPresented(_:body:)-6xgyj``
+/// - ``withErrorPresented(_:)-9tpp3``
+/// - ``withErrorPresented(_:)-6jpcn``
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 public struct AlertManager: LocalizableError {
     
@@ -146,7 +148,7 @@ public struct AlertManager: LocalizableError {
     
     /// Creates an alert manager with a given error.
     ///
-    /// - SeeAlso: You can also use the following functions to present the captured error: ``withErrorPresented(_:)-1feng``, ``withErrorPresented(_:)-8uxls``.
+    /// - SeeAlso: You can also use the following functions to present the captured error: ``withErrorPresented(_:)-9tpp3``, ``withErrorPresented(_:)-6jpcn``.
     public init(_ error: some Error) {
         #if canImport(ErrorManager)
         if let error = error as? ErrorManager {
@@ -250,7 +252,7 @@ public struct AlertManager: LocalizableError {
     
     /// Present the given error.
     ///
-    /// - SeeAlso: You can also use the following functions to present the captured error: ``withErrorPresented(_:)-1feng``, ``withErrorPresented(_:)-8uxls``.
+    /// - SeeAlso: You can also use the following functions to present the captured error: ``withErrorPresented(_:)-9tpp3``, ``withErrorPresented(_:)-6jpcn``.
     public static func present(_ error: some Error) {
         AlertManager(error).present()
     }

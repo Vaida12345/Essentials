@@ -11,9 +11,9 @@ import CoreMedia
 import OSLog
 
 
-/// Please note that `Int` is implemented using little-endian byte order, ie, most significant byte is at the rhs.
-/// While inside each byte, the bits are in bit-endian order, ie, mots significant byte is at the lhs.
-/// However, in bit-shift, operations are performed as if the bytes are in big-endian order.
+// Please note that `Int` is implemented using little-endian byte order, ie, most significant byte is at the rhs.
+// While inside each byte, the bits are in bit-endian order, ie, mots significant byte is at the lhs.
+// However, in bit-shift, operations are performed as if the bytes are in big-endian order.
 public extension BinaryInteger {
     
     /// Calls a closure with a pointer to the object’s bytes.
@@ -144,7 +144,7 @@ public extension Date {
     ///
     /// There is no such thing as *overflow* for the date components, for example, day 367 of year 2024 would indicate the first date of 2025.
     ///
-    /// - Returns: The first match given the specifications
+    /// > Returns: The first match given the specifications
     ///
     /// > Example:
     /// > Use this initializer to form a date using its components. The first match will be returned.
@@ -165,7 +165,7 @@ public extension Date {
     ///
     /// There is no such thing as *overflow* for the date components, for example, day 367 of year 2024 would indicate the first date of 2025.
     ///
-    /// - Returns: The first match given the specifications
+    /// > Returns: The first match given the specifications
     ///
     /// > Example:
     /// > Use this initializer to form a date using its components. The first match will be returned.
@@ -386,45 +386,3 @@ public extension VNRectangleObservation {
     
 }
 #endif
-
-/// Redirects the standard output and captures the result.
-@inlinable
-@available(macOS 10.15, iOS 13, watchOS 6, *)
-public func withStandardOutputCaptured(_ body: () throws -> Void) throws -> FileHandle {
-    // Create a pipe and redirect stdout
-    let pipe = Pipe()
-    let oldStdout = dup(STDOUT_FILENO)
-    dup2(pipe.fileHandleForWriting.fileDescriptor, STDOUT_FILENO)
-    
-    defer {
-        // Restore stdout
-        dup2(oldStdout, STDOUT_FILENO)
-        close(oldStdout)
-        try! pipe.fileHandleForWriting.close()
-    }
-    
-    // Print something (this will be captured)
-    try body()
-    
-    return pipe.fileHandleForReading
-}
-
-/// Redirects the standard output and captures the result.
-@inlinable
-@available(macOS 10.15, iOS 13, watchOS 6, *)
-public func withStandardOutputAsyncCaptured(_ body: () async throws -> Void) async throws -> FileHandle {
-    // Create a pipe and redirect stdout
-    let pipe = Pipe()
-    let oldStdout = dup(STDOUT_FILENO)
-    dup2(pipe.fileHandleForWriting.fileDescriptor, STDOUT_FILENO)
-    
-    // Print something (this will be captured)
-    try await body()
-    
-    // Restore stdout
-    dup2(oldStdout, STDOUT_FILENO)
-    close(oldStdout)
-    try pipe.fileHandleForWriting.close()
-    
-    return pipe.fileHandleForReading
-}
