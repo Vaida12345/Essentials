@@ -10,7 +10,9 @@
 /// First in, first out Queue with weights using heap.
 ///
 /// The type `Element` is the content, `W` is the type for weight.
-public struct PriorityQueue<Element, W>: CustomReflectable where W: Comparable {
+///
+/// A `PriorityQueue` is both an iterator and a sequence. When forming such iterator, a copy of the queue is made, ensuring the original copy is intact during iteration.
+public struct PriorityQueue<Element, W> where W: Comparable {
     
     private var contents: Heap<Node>
     
@@ -43,17 +45,12 @@ public struct PriorityQueue<Element, W>: CustomReflectable where W: Comparable {
         self.contents.isEmpty
     }
     
-    /// The mirror to the queue.
-    public var customMirror: Mirror {
-        Mirror(self, children: Array(self.contents).map { ("\($0.content)", $0.weight) })
-    }
-    
     /// Creates the queue.
     ///
     /// - Parameters:
-    ///   - isMaxHeap: If `true`, elements with higher `weight` will be dequeued first.
-    public init(isMaxHeap: Bool = true) {
-        self.contents = .init(isMaxHeap ? .maxHeap : .minHeap)
+    ///   - order: The order determining how the elements will be sorted.
+    public init(_ order: WeightOrder = .descending) {
+        self.contents = .init(order == .descending ? .maxHeap : .minHeap)
     }
     
     /// Up-heap
@@ -80,14 +77,14 @@ public struct PriorityQueue<Element, W>: CustomReflectable where W: Comparable {
         self.enqueue(content, weight: content[keyPath: weight])
     }
     
-    /// Dequeue the element of max / min priority.
+    /// Dequeue the element of priority.
     ///
     /// - Complexity: O(log *n*), where *n*: length of heap
     public mutating func dequeue() -> Element? {
         self.contents.removeFirst()?.content
     }
     
-    /// Dequeue the element of max / min priority.
+    /// Dequeue the element of priority.
     ///
     /// - Parameters:
     ///   - weight: Pass a value if you need to know the weight. Otherwise, use ``dequeue()`` instead.
@@ -97,6 +94,14 @@ public struct PriorityQueue<Element, W>: CustomReflectable where W: Comparable {
         guard let value = self.contents.removeFirst() else { return nil }
         weight = value.weight
         return value.content
+    }
+    
+    /// The order for sorting by the weight.
+    public enum WeightOrder: Equatable, Sendable {
+        /// elements with higher weight will be dequeued first.
+        case ascending
+        /// elements with lower weight will be dequeued first.
+        case descending
     }
 }
 
@@ -117,3 +122,20 @@ extension PriorityQueue: Sequence { }
 extension PriorityQueue.Node: Sendable where Element: Sendable, W: Sendable { }
 
 extension PriorityQueue: Sendable where Element: Sendable, W: Sendable { }
+
+
+extension PriorityQueue: CustomStringConvertible {
+    
+    public var description: String {
+        "[" + self.map({ "\($0)" }).joined(separator: ", ") + "]"
+    }
+    
+}
+
+extension PriorityQueue: CustomDebugStringConvertible {
+    
+    public var debugDescription: String {
+        "[" + self.contents.map({ "\($0.content)<\($0.weight)>" }).joined(separator: ", ") + "]"
+    }
+    
+}

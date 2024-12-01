@@ -102,4 +102,16 @@ struct HeapTests {
         #expect(array.min(k: 100) == array.min())
     }
     
+    @Test
+    func description() {
+        var heap = Heap<Int>(.minHeap)
+        heap.append(1)
+        heap.append(100)
+        heap.append(2)
+        heap.append(50)
+        
+        #expect(heap.description == "[1, 2, 50, 100]")
+        #expect(Array(heap) == [1, 2, 50, 100])
+    }
+    
 }

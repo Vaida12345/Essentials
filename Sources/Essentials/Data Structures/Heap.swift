@@ -8,6 +8,8 @@
 
 
 /// A specialized tree-based data structure.
+///
+/// A `Heap` is both an iterator and a sequence. When forming such iterator, a copy of the heap is made, ensuring the original copy is intact during iteration.
 public struct Heap<Element>: ExpressibleByArrayLiteral where Element: Comparable {
     
     private var contents: [Element]
@@ -101,7 +103,7 @@ public struct Heap<Element>: ExpressibleByArrayLiteral where Element: Comparable
         self.contents.first
     }
     
-    /// Dequeues the element with the highest / lowest priority.
+    /// Dequeues the first element.
     ///
     /// - Complexity: O(log *n*), where *n*: length of heap
     @discardableResult
@@ -208,6 +210,14 @@ extension Heap: IteratorProtocol {
     @inlinable
     public mutating func next() -> Element? {
         self.removeFirst()
+    }
+    
+}
+
+extension Heap: CustomStringConvertible {
+    
+    public var description: String {
+        "[" + self.map({ "\($0)" }).joined(separator: ", ") + "]"
     }
     
 }
