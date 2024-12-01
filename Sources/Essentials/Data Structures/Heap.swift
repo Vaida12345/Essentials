@@ -63,6 +63,22 @@ public struct Heap<Element>: ExpressibleByArrayLiteral where Element: Comparable
         self.downHeap(at: maxIndex)
     }
     
+    private func isInOrder(_ lhs: Element, _ rhs: Element) -> Bool {
+        heapType == .maxHeap ? lhs > rhs : lhs < rhs
+    }
+    
+    /// Restore heap property
+    ///
+    /// - Complexity: O(*n* log *n*), where *n*: the array length
+    private mutating func heapify() {
+        for i in stride(from: self.contents.count / 2 - 1, through: 0, by: -1) {
+            downHeap(at: i) // Join the freshly-verified sub-heap with its parent, Verify the heap condition for this larger sub-heap
+        }
+    }
+    
+    
+    // MARK: - API
+    
     /// Add an element to its correct location.
     ///
     /// - Complexity: O(log *n*), where *n*: length of heap
@@ -104,17 +120,11 @@ public struct Heap<Element>: ExpressibleByArrayLiteral where Element: Comparable
         }
     }
     
-    private func isInOrder(_ lhs: Element, _ rhs: Element) -> Bool {
-        heapType == .maxHeap ? lhs > rhs : lhs < rhs
-    }
-    
-    /// Restore heap property
+    /// The root of the heap.
     ///
-    /// - Complexity: O(*n* log *n*), where *n*: the array length
-    private mutating func heapify() {
-        for i in stride(from: self.contents.count / 2 - 1, through: 0, by: -1) {
-            downHeap(at: i) // Join the freshly-verified sub-heap with its parent, Verify the heap condition for this larger sub-heap
-        }
+    /// - Complexity: O(*0*)
+    public func peak() -> Element? {
+        self.contents.first
     }
     
     
@@ -172,6 +182,9 @@ public struct Heap<Element>: ExpressibleByArrayLiteral where Element: Comparable
 
 public extension Array {
     
+    /// Creates an array using the given heap.
+    ///
+    /// - Complexity: O(*n* log *n*), where *n*: length of heap
     @inlinable
     init(_ heap: Heap<Element>) where Element: Comparable {
         self = Array(unsafeUninitializedCapacity: heap.count) { buffer, initializedCount in
@@ -189,6 +202,9 @@ public extension Array {
 
 extension Heap: IteratorProtocol {
     
+    /// The next element in the heap.
+    ///
+    /// - Complexity: O(log *n*), where *n*: length of heap
     @inlinable
     public mutating func next() -> Element? {
         self.removeFirst()
@@ -207,25 +223,26 @@ public extension Sequence {
     /// Returns the `k`th minimum value.
     ///
     /// - Parameters:
-    ///   - k: The `k`th value.
+    ///   - k: The `k`th value, `1`-indexed.
     ///
     /// - Complexity: O(*n* log *k*), where *n*: number of elements.
-    @inlinable
     func min(k: Int) -> Element? where Element: Comparable {
         var heap = Heap<Element>(.maxHeap)
         
         for element in self {
-            if heap.count >= k { heap.removeFirst() }
             heap.append(element)
+            if heap.count > k {
+                heap.removeFirst() // Remove the largest of the smallest k elements.
+            }
         }
         
-        return heap.removeFirst()
+        return heap.peak() // Root of the max-heap is the k-th smallest.
     }
     
     /// Returns the `k`th maximum value.
     ///
     /// - Parameters:
-    ///   - k: The `k`th value.
+    ///   - k: The `k`th value, `1`-indexed.
     ///
     /// - Complexity: O(*n* log *k*), where *n*: number of elements.
     @inlinable
@@ -233,11 +250,11 @@ public extension Sequence {
         var heap = Heap<Element>(.minHeap)
         
         for element in self {
-            if heap.count >= k { heap.removeFirst() }
             heap.append(element)
+            if heap.count > k { heap.removeFirst() }
         }
         
-        return heap.removeFirst()
+        return heap.peak()
     }
     
 }

@@ -14,7 +14,7 @@ public struct PriorityQueue<Element, W>: CustomReflectable where W: Comparable {
     
     private var contents: Heap<Node>
     
-    private struct Node: Comparable {
+    fileprivate struct Node: Comparable {
         
         fileprivate var content: Element
         fileprivate var weight: W
@@ -112,3 +112,8 @@ extension PriorityQueue: IteratorProtocol {
 }
 
 extension PriorityQueue: Sequence { }
+
+
+extension PriorityQueue.Node: Sendable where Element: Sendable, W: Sendable { }
+
+extension PriorityQueue: Sendable where Element: Sendable, W: Sendable { }
