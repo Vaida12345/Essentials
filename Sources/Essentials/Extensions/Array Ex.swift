@@ -58,17 +58,6 @@ public extension Sequence {
         self.allEqual(==)
     }
     
-    /// Returns the number of elements where the `predicate` is met.
-    ///
-    /// - Parameters:
-    ///   - predicate: A closure that takes an element as its argument and returns a Boolean value that indicates whether the passed element represents a match.
-    ///
-    /// - Complexity: O(*n*), where *n*: The length of the sequence.
-    @inlinable
-    func count(where predicate: (Element) throws -> Bool) rethrows -> Int {
-        try self.reduce(0) { $0 &+ (try predicate($1) ? 1 : 0) }
-    }
-    
     /// Returns a compact mapped sequence.
     ///
     /// - Complexity: O(*n*), where *n*: The length of the array.
