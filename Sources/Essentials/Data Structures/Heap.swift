@@ -226,6 +226,10 @@ public extension Sequence {
     ///   - k: The `k`th value, `1`-indexed.
     ///
     /// - Complexity: O(*n* log *k*), where *n*: number of elements.
+    ///
+    /// > Returns:
+    /// > - `nil` if `self` is empty
+    /// > - `max()` if `k > self.count`.
     func min(k: Int) -> Element? where Element: Comparable {
         var heap = Heap<Element>(.maxHeap)
         
@@ -245,6 +249,10 @@ public extension Sequence {
     ///   - k: The `k`th value, `1`-indexed.
     ///
     /// - Complexity: O(*n* log *k*), where *n*: number of elements.
+    ///
+    /// > Returns:
+    /// > - `nil` if `self` is empty
+    /// > - `min()` if `k > self.count`.
     @inlinable
     func max(k: Int) -> Element? where Element: Comparable {
         var heap = Heap<Element>(.minHeap)

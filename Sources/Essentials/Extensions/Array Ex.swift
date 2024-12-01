@@ -34,7 +34,7 @@ public extension Sequence {
     ///
     /// - Returns: The return value is `true` if the array is empty.
     ///
-    /// - Complexity: O(*n*), where *n* is the length of array.
+    /// - Complexity: O(*n*), where *n*: The length of the sequence.
     @inlinable
     func allEqual(_ predicate: (_ lhs: Element, _ rhs: Element) throws -> Bool) rethrows -> Bool {
         
@@ -52,7 +52,7 @@ public extension Sequence {
     ///
     /// - Returns: The return value is `true` if the array is empty.
     ///
-    /// - Complexity: O(*n*), where *n* is the length of array.
+    /// - Complexity: O(*n*), where *n*: The length of the sequence.
     @inlinable
     func allEqual() -> Bool where Element: Equatable {
         self.allEqual(==)
@@ -63,7 +63,7 @@ public extension Sequence {
     /// - Parameters:
     ///   - predicate: A closure that takes an element as its argument and returns a Boolean value that indicates whether the passed element represents a match.
     ///
-    /// - Complexity: O(*n*), where *n*: The length of the array.
+    /// - Complexity: O(*n*), where *n*: The length of the sequence.
     @inlinable
     func count(where predicate: (Element) throws -> Bool) rethrows -> Int {
         try self.reduce(0) { $0 &+ (try predicate($1) ? 1 : 0) }
@@ -101,6 +101,8 @@ public extension Sequence {
     /// Returns the only the element matches the predicate.
     ///
     /// - Returns: If multiple elements match, returns `nil`.
+    ///
+    /// - Complexity: O(*n*), where *n*: The length of sequence.
     @inlinable
     func onlyMatch(where predicate: (Element) throws -> Bool) rethrows -> Element? {
         var match: Element? = nil
@@ -136,6 +138,8 @@ public extension Sequence {
     ///   - nextPartialResult: A closure that combines an accumulating value and an element of the sequence into a new accumulating value, to be used in the next call of the nextPartialResult closure or returned to the caller.
     ///
     /// - Returns: `nil` when the sequence is empty.
+    ///
+    /// - Complexity: O(*n*), where *n*: The length of the sequence.
     @inlinable
     func reduce(_ nextPartialResult: (Element, Element) throws -> Element) rethrows -> Element? {
         var iterator = self.makeIterator()
