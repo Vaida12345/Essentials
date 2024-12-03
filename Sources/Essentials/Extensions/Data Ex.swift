@@ -167,7 +167,7 @@ public extension Data {
     
     /// Decompress the data using the given algorithm.
     @inlinable
-    func decompressed(using algorithm: Compression.Algorithm = .lzfse, pageSize: Int = 128) throws -> Data {
+    func decompressed(using algorithm: Compression.Algorithm = .lzfse, pageSize: Int = 65536) throws -> Data {
         var decompressedData = Data()
         
         var index = 0
@@ -195,6 +195,20 @@ public extension Data {
 extension SHA256Digest {
     
     /// The raw data that made up the hash value. The length is 32 bytes.
+    @inlinable
+    public var data: Data {
+        self.withUnsafeBytes { buffer in
+            Data(bytes: buffer.baseAddress!, count: buffer.count)
+        }
+    }
+    
+}
+
+
+@available(macOS 10.15, iOS 13, watchOS 6, *)
+extension SymmetricKey {
+    
+    /// The raw data that made up the key.
     @inlinable
     public var data: Data {
         self.withUnsafeBytes { buffer in
