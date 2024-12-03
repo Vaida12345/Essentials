@@ -129,69 +129,6 @@ public extension Data {
 
 
 @available(macOS 10.15, iOS 13, watchOS 6, *)
-public extension Data {
-    
-    /// Compress the data using the given algorithm.
-    ///
-    /// - Parameters:
-    ///   - algorithm: The compression algorithm used. Use the default one for Apple platforms.
-    ///   - pageSize: The block size. See discussion for more information.
-    ///
-    /// - **Larger `pageSize`** (e.g., 64 KB) generally results in better compression ratios and more efficient processing due to reduced overhead and better utilization of the compression algorithm's capabilities.
-    /// - **Smaller `pageSize`** may be suitable for memory-constrained environments or when low latency is critical, but at the cost of compression efficiency.
-    ///
-    /// - Tip: The `Compression` framework uses a `stream`-like workflow, but is flatten here for the ease of use. Users are recommended to look through the source code leverage the stream to optimize the memory usage.
-    @inlinable
-    func compressed(using algorithm: Compression.Algorithm = .lzfse, pageSize: Int = 65536) throws -> Data {
-        var compressedData = Data()
-        let outputFilter = try OutputFilter(.compress, using: algorithm) { data in
-            if let data { compressedData.append(data) }
-        }
-        
-        var index = 0
-        let bufferSize = self.count
-        
-        while true {
-            let rangeLength = Swift.min(pageSize, bufferSize - index)
-            
-            let subdata = self.subdata(in: index ..< index + rangeLength)
-            index += rangeLength
-            
-            try outputFilter.write(subdata)
-            
-            if (rangeLength == 0) { break }
-        }
-        
-        return compressedData
-    }
-    
-    /// Decompress the data using the given algorithm.
-    @inlinable
-    func decompressed(using algorithm: Compression.Algorithm = .lzfse, pageSize: Int = 65536) throws -> Data {
-        var decompressedData = Data()
-        
-        var index = 0
-        let bufferSize = self.count
-        
-        let inputFilter = try InputFilter(.decompress, using: algorithm) { (length: Int) -> Data? in
-            let rangeLength = Swift.min(length, bufferSize - index)
-            let subdata = self.subdata(in: index ..< index + rangeLength)
-            index += rangeLength
-            
-            return subdata
-        }
-        
-        while let page = try inputFilter.readData(ofLength: pageSize) {
-            decompressedData.append(page)
-        }
-        
-        return decompressedData
-    }
-    
-}
-
-
-@available(macOS 10.15, iOS 13, watchOS 6, *)
 extension SHA256Digest {
     
     /// The raw data that made up the hash value. The length is 32 bytes.
