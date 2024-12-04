@@ -299,12 +299,12 @@ public func withErrorPresented(_ body: @escaping @Sendable () async throws -> Vo
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 public func withErrorPresented<T>(
     _ title: String,
-    body: @escaping @Sendable () async throws -> T,
-    onSuccess: ((T) async -> Void)? = nil
+    body: @Sendable () async throws -> T,
+    onSuccess: (T) async -> Void = {_ in }
 ) async {
     do {
         let content = try await body()
-        await onSuccess?(content)
+        await onSuccess(content)
     } catch {
         let manager = AlertManager(error)
         AlertManager(title: LocalizedStringResource(stringLiteral: title), message: LocalizedStringResource(stringLiteral: manager.description), actions: manager.actions).present()
@@ -335,12 +335,12 @@ public func withErrorPresented<T>(_ body: () throws -> T) -> T? {
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 public func withErrorPresented<T>(
     _ title: String,
-    body: @escaping () throws -> T,
-    onSuccess: ((T) -> Void)? = nil
+    body: () throws -> T,
+    onSuccess: (T) -> Void = {_ in }
 ) {
     do {
         let content = try body()
-        onSuccess?(content)
+        onSuccess(content)
     } catch {
         let manager = AlertManager(error)
         AlertManager(title: LocalizedStringResource(stringLiteral: title), message: LocalizedStringResource(stringLiteral: manager.description), actions: manager.actions).present()
