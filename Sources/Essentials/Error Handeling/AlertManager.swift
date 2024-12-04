@@ -296,19 +296,19 @@ public func withErrorPresented(_ body: @escaping @Sendable () async throws -> Vo
 /// - Parameters:
 ///   - title: The title for the error. This is recommended so the user would understand the implication of such error.
 ///   - body: The main body.
+@discardableResult
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 public func withErrorPresented<T>(
     _ title: String,
-    body: @Sendable () async throws -> T,
-    onSuccess: (T) async -> Void = {_ in }
-) async {
+    body: @Sendable () async throws -> T
+) async -> T? {
     do {
-        let content = try await body()
-        await onSuccess(content)
+        return try await body()
     } catch {
         let manager = AlertManager(error)
         AlertManager(title: LocalizedStringResource(stringLiteral: title), message: LocalizedStringResource(stringLiteral: manager.description), actions: manager.actions).present()
     }
+    return nil
 }
 
 
@@ -332,17 +332,17 @@ public func withErrorPresented<T>(_ body: () throws -> T) -> T? {
 /// - Parameters:
 ///   - title: The title for the error. This is recommended so the user would understand the implication of such error.
 ///   - body: The main body.
+@discardableResult
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 public func withErrorPresented<T>(
     _ title: String,
-    body: () throws -> T,
-    onSuccess: (T) -> Void = {_ in }
-) {
+    body: () throws -> T
+) -> T? {
     do {
-        let content = try body()
-        onSuccess(content)
+        return try body()
     } catch {
         let manager = AlertManager(error)
         AlertManager(title: LocalizedStringResource(stringLiteral: title), message: LocalizedStringResource(stringLiteral: manager.description), actions: manager.actions).present()
     }
+    return nil
 }
