@@ -297,9 +297,14 @@ public func withErrorPresented(_ body: @escaping @Sendable () async throws -> Vo
 ///   - title: The title for the error. This is recommended so the user would understand the implication of such error.
 ///   - body: The main body.
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-public func withErrorPresented(_ title: String, body: @escaping @Sendable () async throws -> Void) async {
+public func withErrorPresented<T>(
+    _ title: String,
+    body: @escaping @Sendable () async throws -> T,
+    onSuccess: ((T) async -> Void)? = nil
+) async {
     do {
-        try await body()
+        let content = try await body()
+        await onSuccess?(content)
     } catch {
         let manager = AlertManager(error)
         AlertManager(title: LocalizedStringResource(stringLiteral: title), message: LocalizedStringResource(stringLiteral: manager.description), actions: manager.actions).present()
@@ -327,14 +332,17 @@ public func withErrorPresented<T>(_ body: () throws -> T) -> T? {
 /// - Parameters:
 ///   - title: The title for the error. This is recommended so the user would understand the implication of such error.
 ///   - body: The main body.
-@discardableResult
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-public func withErrorPresented<T>(_ title: String, body: @escaping () throws -> T) -> T? {
+public func withErrorPresented<T>(
+    _ title: String,
+    body: @escaping () throws -> T,
+    onSuccess: ((T) -> Void)? = nil
+) {
     do {
-        return try body()
+        let content = try body()
+        onSuccess?(content)
     } catch {
         let manager = AlertManager(error)
         AlertManager(title: LocalizedStringResource(stringLiteral: title), message: LocalizedStringResource(stringLiteral: manager.description), actions: manager.actions).present()
     }
-    return nil
 }
