@@ -97,18 +97,17 @@ public extension CHHapticPattern {
     ///   - attack: The time at which a haptic pattern’s intensity begins increasing.
     ///   - decay: The time at which a haptic pattern’s intensity begins decreasing.
     ///   - release: The time at which to begin fading the haptic pattern.
-    ///   - sustained: A Boolean value that indicates whether to sustain a haptic event for its specified duration. If true, the engine sustains the haptic pattern throughout its specified duration, increasing only during its attackTime, and decreasing only after its decayTime. If false, the haptic doesn’t stay at full strength between attack and decay, tailing off even before its decay has begun.
     ///   - duration: The duration of the haptic event, in seconds.
-    ///   - continuous: The type of the haptic event: transient or continuous.
     @inlinable
     convenience init(intensity: Float = 1,
                      sharpness: Float = 1,
                      attack: Float = 0,
                      decay: Float = 0,
                      release: Float = 0,
-                     duration: Double = 0,
-                     sustained: Bool = false,
-                     continuous: Bool = false) throws {
+                     duration: Double = 0) throws {
+        let sustained: Bool = duration != 0
+        let continuous: Bool = attack != 0 || decay != 0 || release != 0 || duration != 0
+        
         try self.init(
             events: [
                 CHHapticEvent(
