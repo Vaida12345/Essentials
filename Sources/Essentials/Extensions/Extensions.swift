@@ -198,6 +198,14 @@ public extension Duration {
 }
 
 
+extension OptionSet {
+    
+    /// The option where none is selected.
+    public static var none: Self { [] }
+    
+}
+
+
 extension FileHandle {
     
     /// Writes the `utf-8` encoding string to the handler, with the terminator.
