@@ -6,19 +6,9 @@ import PackageDescription
 let package = Package(
     name: "Essentials",
     products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
-        .library(
-            name: "Essentials",
-            targets: ["Essentials"]),
-    ],
-    targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
-        .target(
-            name: "Essentials"),
-        .testTarget(
-            name: "EssentialsTests",
-            dependencies: ["Essentials"]
-        ),
+        .library(name: "Essentials", targets: ["Essentials"])
+    ], targets: [
+        .target(name: "Essentials", path: "Sources"),
+        .testTarget(name: "EssentialsTests", dependencies: ["Essentials"], path: "Tests")
     ]
 )
