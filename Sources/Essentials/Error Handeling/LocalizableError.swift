@@ -13,9 +13,6 @@ import Foundation
 @available(macOS 13, iOS 16, watchOS 9, *)
 public protocol LocalizableError: GenericError {
     
-    /// The error description, shown as the title in ``AlertManager``.
-    var titleResource: LocalizedStringResource { get }
-    
     /// The failure reason, shown as the message in ``AlertManager``.
     var messageResource: LocalizedStringResource { get }
     
@@ -23,10 +20,6 @@ public protocol LocalizableError: GenericError {
 
 @available(macOS 13, iOS 16, watchOS 9, *)
 extension LocalizableError {
-    
-    public var title: String {
-        titleResource.localized()
-    }
     
     public var message: String {
         messageResource.localized()

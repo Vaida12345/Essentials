@@ -299,14 +299,14 @@ public func withErrorPresented(_ body: @escaping @Sendable () async throws -> Vo
 @discardableResult
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 public func withErrorPresented<T>(
-    _ title: String,
+    _ title: LocalizedStringResource,
     body: @Sendable () async throws -> T
 ) async -> T? {
     do {
         return try await body()
     } catch {
         let manager = AlertManager(error)
-        AlertManager(title: LocalizedStringResource(stringLiteral: title), message: LocalizedStringResource(stringLiteral: manager.description), actions: manager.actions).present()
+        AlertManager(title: title, message: manager.messageResource, actions: manager.actions).present()
     }
     return nil
 }
@@ -335,14 +335,14 @@ public func withErrorPresented<T>(_ body: () throws -> T) -> T? {
 @discardableResult
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 public func withErrorPresented<T>(
-    _ title: String,
+    _ title: LocalizedStringResource,
     body: () throws -> T
 ) -> T? {
     do {
         return try body()
     } catch {
         let manager = AlertManager(error)
-        AlertManager(title: LocalizedStringResource(stringLiteral: title), message: LocalizedStringResource(stringLiteral: manager.description), actions: manager.actions).present()
+        AlertManager(title: title, message: manager.messageResource, actions: manager.actions).present()
     }
     return nil
 }

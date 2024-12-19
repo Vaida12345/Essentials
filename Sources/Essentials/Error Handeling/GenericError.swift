@@ -47,9 +47,6 @@ import Foundation
 /// - ``failureReason``
 public protocol GenericError: LocalizedError, CustomStringConvertible, Equatable {
     
-    /// The error description, shown as the title in `AlertManager`.
-    var title: String { get }
-    
     /// The failure reason, shown as the message in `AlertManager`.
     var message: String { get }
     
@@ -59,11 +56,7 @@ public protocol GenericError: LocalizedError, CustomStringConvertible, Equatable
 extension GenericError {
     
     public var description: String {
-        if !message.isEmpty {
-            "\(title): \(message)"
-        } else {
-            title
-        }
+        "\(Self.self): \(message)"
     }
     
     /// - Invariant: This is inherited from `GenericError.description`
