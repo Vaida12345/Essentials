@@ -159,9 +159,9 @@ public struct AlertManager: LocalizableError {
         if let error = error as? AlertManager {
             self = error
         } else if let localizableError = error as? (any LocalizableError) {
-            self.init(title: localizableError.titleResource, message: localizableError.messageResource, actions: [])
+            self.init(title: LocalizedStringResource(stringLiteral: "\(type(of: localizableError))"), message: localizableError.messageResource, actions: [])
         } else if let errorManager = error as? any GenericError {
-            self.init(title: LocalizedStringResource(stringLiteral: errorManager.title),
+            self.init(title: LocalizedStringResource(stringLiteral: "\(type(of: errorManager))"),
                       message: LocalizedStringResource(stringLiteral: errorManager.message),
                       actions: [])
         } else if let localizedError = error as? LocalizedError {
