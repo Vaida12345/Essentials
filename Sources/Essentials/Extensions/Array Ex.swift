@@ -602,8 +602,6 @@ public extension Array {
     /// // Prints "["Peter", "Kweku", "Kofi", "Akosua", "Abena"]"
     /// ```
     ///
-    /// - Important: Use this only when the cost is high.
-    ///
     /// - Parameters:
     ///   - feature: The feature to be compared.
     ///   - areInIncreasingOrder: A boolean value indicating whether the rhs is greater than the lhs.
@@ -613,10 +611,7 @@ public extension Array {
     /// - Complexity: O(*n* log *n*), where *n* is the length of the sequence.
     @inlinable
     func sorted<T>(on feature: (Element) throws -> T, by areInIncreasingOrder: (T, T) throws -> Bool) rethrows -> [Element] {
-        guard self.count > 1 else { return self }
-        let reference = try self.map(feature)
-        let indexes = try [Index](0..<self.count).sorted { try areInIncreasingOrder(reference[$0], reference[$1]) }
-        return indexes.map { self[$0] }
+        try self.sorted(by: { try areInIncreasingOrder(feature($0), feature($1)) })
     }
     
     
