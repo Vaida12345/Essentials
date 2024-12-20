@@ -148,7 +148,7 @@ public struct AlertManager: LocalizableError {
     
     /// Creates an alert manager with a given error.
     ///
-    /// - SeeAlso: You can also use the following functions to present the captured error: ``withErrorPresented(_:)-9tpp3``, ``withErrorPresented(_:)-6jpcn``.
+    /// - SeeAlso: You should use ``withErrorPresented(_:body:)`` to present the captured error when possible. Doing so will allow adding a customized title to further explain the error.
     public init(_ error: some Error) {
         #if canImport(ErrorManager)
         if let error = error as? ErrorManager {
@@ -171,7 +171,7 @@ public struct AlertManager: LocalizableError {
         } else {
             let error = error as NSError
             self.init(title: LocalizedStringResource(stringLiteral: error.localizedDescription),
-                      message: LocalizedStringResource(stringLiteral: ""),
+                      message: LocalizedStringResource(stringLiteral: error.localizedFailureReason ?? error.localizedRecoverySuggestion ?? ""),
                       actions: [])
         }
     }
