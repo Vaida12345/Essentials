@@ -205,6 +205,20 @@ extension OptionSet {
     
 }
 
+extension Optional {
+    
+    /// Returns `true` is `self == nil` or `predicate(self!)`.
+    public func isNil(or predicate: (Wrapped) -> Bool) -> Bool {
+        switch self {
+        case .none:
+            return true
+        case .some(let wrapped):
+            return predicate(wrapped)
+        }
+    }
+    
+}
+
 
 extension FileHandle {
     
