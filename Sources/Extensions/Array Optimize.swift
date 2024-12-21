@@ -114,3 +114,45 @@ extension RandomAccessCollection where Index == Int {
     }
     
 }
+
+
+extension RandomAccessCollection where Index == Int {
+    
+    /// Custom grouping of `source`.
+    ///
+    /// Example:
+    /// ```swift
+    ///  Array.grouping(chords) { i, chord, currentGroup, newGroup in
+    ///    if let firstChord = currentGroup.first {
+    ///        if chord.min(of: \.onset)! - firstChord.max(of: \.onset)! < spec.duration {
+    ///            currentGroup.append(chord)
+    ///        } else {
+    ///            newGroup(&currentGroup)
+    ///            currentGroup = [chord]
+    ///        }
+    ///    } else {
+    ///        currentGroup = [chord]
+    ///    }
+    /// }
+    /// ```
+    public func grouped<C>(
+        of type: C.Type = [Element].self,
+        update: (_ i: Int, _ element: Element, _ currentGroup: inout C, _ newGroup: (_ currentGroup: inout C) -> Void) -> Void
+    ) -> [C] where C: RandomAccessCollection & ExpressibleByArrayLiteral, C.Element == Element {
+        var groups: [C] = []
+        var currentGroup: C = []
+        
+        var i = self.startIndex
+        while i < self.endIndex {
+            update(i, self[i], &currentGroup) { currentGroup in
+                groups.append(currentGroup)
+                currentGroup = []
+            }
+            
+            i &+= 1
+        }
+        
+        groups.append(currentGroup)
+        return groups
+    }
+}
