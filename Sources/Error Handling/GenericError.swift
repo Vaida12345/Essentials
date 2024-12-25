@@ -22,10 +22,6 @@ import Foundation
 ///  public enum ReadDataError: GenericError {
 ///     case invalidLength
 ///
-///     public var title: String {
-///         "Invalid UUID data"
-///     }
-///
 ///     public var message: String {
 ///         switch self {
 ///         case invalidLength:
@@ -37,7 +33,6 @@ import Foundation
 ///
 /// ## Topics
 /// ### Protocol Requirements
-/// - ``title``
 /// - ``message``
 ///
 /// ### Default Implementations

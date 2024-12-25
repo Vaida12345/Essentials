@@ -17,6 +17,7 @@ public extension Data {
     /// - Parameters:
     ///   - algorithm: The compression algorithm used. Use the default one for Apple platforms.
     ///   - pageSize: The block size. See discussion for more information.
+    ///   - handler: The handler for partial data.
     ///
     /// - **Larger `pageSize`** (e.g., 64 KB) generally results in better compression ratios and more efficient processing due to reduced overhead and better utilization of the compression algorithm's capabilities.
     /// - **Smaller `pageSize`** may be suitable for memory-constrained environments or when low latency is critical, but at the cost of compression efficiency.
@@ -51,7 +52,7 @@ public extension Data {
     /// - **Larger `pageSize`** (e.g., 64 KB) generally results in better compression ratios and more efficient processing due to reduced overhead and better utilization of the compression algorithm's capabilities.
     /// - **Smaller `pageSize`** may be suitable for memory-constrained environments or when low latency is critical, but at the cost of compression efficiency.
     ///
-    /// - Tip: Use ``Foundation/Data/withCompressionStream(using:pageSize:)``
+    /// - Tip: Use ``Foundation/Data/withCompressionStream(using:pageSize:handler:)`` for stream behavior.
     @inlinable
     func compressed(using algorithm: Compression.Algorithm = .lzfse, pageSize: Int = 65536) throws -> Data {
         var compressedData = Data()

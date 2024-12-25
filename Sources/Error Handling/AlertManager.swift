@@ -64,8 +64,8 @@ import ErrorManager
 ///
 /// ### Handlers
 ///
-/// - ``withErrorPresented(_:body:)-48tr1``
-/// - ``withErrorPresented(_:body:)-6xgyj``
+/// - ``withErrorPresented(_:body:)-6t4zi``
+/// - ``withErrorPresented(_:body:)-2eqy9``
 /// - ``withErrorPresented(_:)-9tpp3``
 /// - ``withErrorPresented(_:)-6jpcn``
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
@@ -148,7 +148,7 @@ public struct AlertManager: LocalizableError {
     
     /// Creates an alert manager with a given error.
     ///
-    /// - SeeAlso: You should use ``withErrorPresented(_:body:)`` to present the captured error when possible. Doing so will allow adding a customized title to further explain the error.
+    /// - SeeAlso: You should use ``withErrorPresented(_:)-9tpp3`` to present the captured error when possible. Doing so will allow adding a customized title to further explain the error.
     public init(_ error: some Error) {
         #if canImport(ErrorManager)
         if let error = error as? ErrorManager {
