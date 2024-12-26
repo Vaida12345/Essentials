@@ -36,13 +36,13 @@ import ErrorManager
 ///
 /// - Warning: Please note that `AlertManager` does not support attributed strings.
 ///
-/// - Note: The AlertManager itself conforms to `Error`, which means it could be thrown and initialized again using ``AlertManager/init(_:)``.
+/// - Note: The AlertManager itself conforms to `Error`, which means it could be thrown.
 ///
 /// ## Topics
 ///
 /// ### Creates a manager
 ///
-/// - ``init(_:)``
+/// - ``init(_:error:)``
 /// - ``init(_:message:)``
 /// - ``init(_:message:actions:)``
 ///
@@ -50,13 +50,10 @@ import ErrorManager
 /// ### Show alert
 ///
 /// - ``present()``
-/// - ``present(_:)``
-/// - ``present(title:message:)``
 ///
 ///
 /// ### Actions
 ///
-/// - ``present(title:message:actions:)``
 /// - ``appendAction(title:isDestructive:handler:)``
 /// - ``appendingAction(title:isDestructive:handler:)``
 /// - ``AlertAction``
@@ -147,9 +144,42 @@ public struct AlertManager: LocalizableError {
     }
     
     /// Creates an alert manager with a given error.
-    @available(*, unavailable, message: "Please use `withErrorPresented(_:body:)` instead")
+    @available(*, unavailable, message: "Please use `init(_:error:)` instead")
     public init(_ error: some Error) {
         fatalError()
+    }
+    
+    /// Creates an alert manager with a given error.
+    public init(_ title: LocalizedStringResource, error: any Error) {
+        let error = AlertManager.parse(error: error)
+        switch error {
+        case .localized(let _title, let _message, let actions):
+            let message: LocalizedStringResource
+            if let _title {
+                message = "\(_title): \(_message)"
+            } else {
+                message = _message
+            }
+            
+            self.init(
+                title: title,
+                message: message,
+                actions: actions
+            )
+        case .unlocalized(let _title, let _message, let actions):
+            let message: String
+            if let _title {
+                message = "\(_title): \(_message)"
+            } else {
+                message = _message
+            }
+            
+            self.init(
+                title: title,
+                message: "\(message)",
+                actions: actions
+            )
+        }
     }
     
     
@@ -271,40 +301,6 @@ public struct AlertManager: LocalizableError {
         }
     }
     
-    fileprivate static func throwError(title: LocalizedStringResource, error: any Error) {
-        let error = AlertManager.parse(error: error)
-        let manager: AlertManager
-        switch error {
-        case .localized(let _title, let _message, let actions):
-            let message: LocalizedStringResource
-            if let _title {
-                message = "\(_title): \(_message)"
-            } else {
-                message = _message
-            }
-            
-            manager = AlertManager(
-                title: title,
-                message: message,
-                actions: actions
-            )
-        case .unlocalized(let _title, let _message, let actions):
-            let message: String
-            if let _title {
-                message = "\(_title): \(_message)"
-            } else {
-                message = _message
-            }
-            
-            manager = AlertManager(
-                title: title,
-                message: "\(message)",
-                actions: actions
-            )
-        }
-        manager.present()
-    }
-    
     fileprivate enum ParsedError {
         case localized(title: LocalizedStringResource?, message: LocalizedStringResource, actions: [AlertAction])
         case unlocalized(title: String?, message: String, actions: [AlertAction])
@@ -350,7 +346,7 @@ public func withErrorPresented<T>(
     do {
         return try await body()
     } catch {
-        AlertManager.throwError(title: title, error: error)
+        AlertManager(title, error: error).present()
     }
     return nil
 }
@@ -369,7 +365,7 @@ public func withErrorPresented<T>(
     do {
         return try body()
     } catch {
-        AlertManager.throwError(title: title, error: error)
+        AlertManager(title, error: error).present()
     }
     return nil
 }
