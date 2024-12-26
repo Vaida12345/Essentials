@@ -116,6 +116,17 @@ public struct AlertManager: LocalizableError {
         self.init(title: title, message: message, actions: [])
     }
     
+    /// Creates an alert manager with the messages to display, and the optional actions
+    ///
+    /// - Parameters:
+    ///   - title: The title of displaying error.
+    ///   - message: The message of displaying error.
+    ///   - actions: The optional actions for the displaying error. The first action is considered the default action, and user can invoke this button by pressing the Return key.
+    @available(*, deprecated, renamed: "init(_:message:actions:)", message: "Use the new interface instead")
+    public init(title: LocalizedStringResource, message: LocalizedStringResource, @AlertAction.Builder actions: () -> [AlertAction]) {
+        self.init(title: title, message: message, actions: actions())
+    }
+    
     /// Creates an alert manager with the messages to display.
     ///
     /// - Parameters:
@@ -131,49 +142,14 @@ public struct AlertManager: LocalizableError {
     ///   - title: The title of displaying error.
     ///   - message: The message of displaying error.
     ///   - actions: The optional actions for the displaying error. The first action is considered the default action, and user can invoke this button by pressing the Return key.
-    @available(*, deprecated, renamed: "init(_:message:actions:)", message: "Use the new interface instead")
-    public init(title: LocalizedStringResource, message: LocalizedStringResource, @AlertAction.Builder actions: () -> [AlertAction]) {
-        self.init(title: title, message: message, actions: actions())
-    }
-    
-    /// Creates an alert manager with the messages to display, and the optional actions
-    ///
-    /// - Parameters:
-    ///   - title: The title of displaying error.
-    ///   - message: The message of displaying error.
-    ///   - actions: The optional actions for the displaying error. The first action is considered the default action, and user can invoke this button by pressing the Return key.
     public init(_ title: LocalizedStringResource, message: LocalizedStringResource, @AlertAction.Builder actions: () -> [AlertAction]) {
         self.init(title: title, message: message, actions: actions())
     }
     
     /// Creates an alert manager with a given error.
-    ///
-    /// - SeeAlso: You should use ``withErrorPresented(_:)-9tpp3`` to present the captured error when possible. Doing so will allow adding a customized title to further explain the error.
+    @available(*, unavailable, message: "Please use `withErrorPresented(_:body:)` instead")
     public init(_ error: some Error) {
-        #if canImport(ErrorManager)
-        if let error = error as? ErrorManager {
-            self.init(title: LocalizedStringResource(stringLiteral: error.errorDescription ?? error.description), message: LocalizedStringResource(stringLiteral: error.errorDescription == nil ? (error.failureReason ?? error.recoverySuggestion ?? "") : (error.failureReason ?? error.recoverySuggestion ?? error.description ?? "")))
-        }
-        #endif
-        
-        if let error = error as? AlertManager {
-            self = error
-        } else if let localizableError = error as? (any LocalizableError) {
-            self.init(title: LocalizedStringResource(stringLiteral: "\(type(of: localizableError))"), message: localizableError.messageResource, actions: [])
-        } else if let errorManager = error as? any GenericError {
-            self.init(title: LocalizedStringResource(stringLiteral: "\(type(of: errorManager))"),
-                      message: LocalizedStringResource(stringLiteral: errorManager.message),
-                      actions: [])
-        } else if let localizedError = error as? LocalizedError {
-            self.init(title: LocalizedStringResource(stringLiteral: localizedError.errorDescription ?? String(describing: localizedError)),
-                      message: LocalizedStringResource(stringLiteral: localizedError.failureReason ?? localizedError.recoverySuggestion ?? ""),
-                      actions: [])
-        } else {
-            let error = error as NSError
-            self.init(title: LocalizedStringResource(stringLiteral: error.localizedDescription),
-                      message: LocalizedStringResource(stringLiteral: error.localizedFailureReason ?? error.localizedRecoverySuggestion ?? ""),
-                      actions: [])
-        }
+        fatalError()
     }
     
     
@@ -250,30 +226,88 @@ public struct AlertManager: LocalizableError {
     }
     
     
-    /// Present the given error.
-    ///
-    /// - SeeAlso: You can also use the following functions to present the captured error: ``withErrorPresented(_:)-9tpp3``, ``withErrorPresented(_:)-6jpcn``.
-    public static func present(_ error: some Error) {
-        AlertManager(error).present()
+    fileprivate static func parse(error: Error) -> ParsedError {
+#if canImport(ErrorManager)
+        if let error = error as? ErrorManager {
+            return .unlocalized(
+                title: error.errorDescription ?? error.description,
+                message: error.errorDescription == nil ? (error.failureReason ?? error.recoverySuggestion ?? "") : (error.failureReason ?? error.recoverySuggestion ?? error.description ?? ""),
+                actions: []
+            )
+        }
+#endif
+        
+        if let error = error as? AlertManager {
+            return .localized(
+                title: error.titleResource,
+                message: error.messageResource,
+                actions: error.actions
+            )
+        } else if let localizableError = error as? (any LocalizableError) {
+            return .localized(
+                title: localizableError.titleResource,
+                message: localizableError.messageResource,
+                actions: localizableError.actions()
+            )
+        } else if let genericError = error as? any GenericError {
+            return .unlocalized(
+                title: genericError.title,
+                message: genericError.message,
+                actions: []
+            )
+        } else if let localizedError = error as? LocalizedError {
+            return .unlocalized(
+                title: localizedError.errorDescription ?? String(describing: localizedError),
+                message: localizedError.failureReason ?? localizedError.recoverySuggestion ?? "",
+                actions: []
+            )
+        } else {
+            let error = error as NSError
+            return .unlocalized(
+                title: error.localizedDescription,
+                message: error.localizedFailureReason ?? error.localizedRecoverySuggestion ?? "",
+                actions: []
+            )
+        }
     }
     
-    /// Present the error with `title` and `message`.
-    ///
-    /// - Parameters:
-    ///   - title: The title of displaying error.
-    ///   - message: The message of displaying error.
-    public static func present(title: LocalizedStringResource, message: LocalizedStringResource) {
-        AlertManager(title: title, message: message, actions: []).present()
+    fileprivate static func throwError(title: LocalizedStringResource, error: any Error) {
+        let error = AlertManager.parse(error: error)
+        let manager: AlertManager
+        switch error {
+        case .localized(let _title, let _message, let actions):
+            let message: LocalizedStringResource
+            if let _title {
+                message = "\(_title): \(_message)"
+            } else {
+                message = _message
+            }
+            
+            manager = AlertManager(
+                title: title,
+                message: message,
+                actions: actions
+            )
+        case .unlocalized(let _title, let _message, let actions):
+            let message: String
+            if let _title {
+                message = "\(_title): \(_message)"
+            } else {
+                message = _message
+            }
+            
+            manager = AlertManager(
+                title: title,
+                message: "\(message)",
+                actions: actions
+            )
+        }
+        manager.present()
     }
     
-    /// Present the error with `title`, `message`, and `actions`.
-    ///
-    /// - Parameters:
-    ///   - title: The title of displaying error.
-    ///   - message: The message of displaying error.
-    ///   - actions: The optional actions for the displaying error. The first action is considered the default action, and user can invoke this button by pressing the Return key.
-    public static func present(title: LocalizedStringResource, message: LocalizedStringResource, @AlertAction.Builder actions: () -> [AlertAction]) {
-        AlertManager(title: title, message: message, actions: actions()).present()
+    fileprivate enum ParsedError {
+        case localized(title: LocalizedStringResource?, message: LocalizedStringResource, actions: [AlertAction])
+        case unlocalized(title: String?, message: String, actions: [AlertAction])
     }
     
 }
@@ -284,12 +318,23 @@ public struct AlertManager: LocalizableError {
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 @inlinable
 public func withErrorPresented(_ body: @escaping @Sendable () async throws -> Void) async {
-    do {
+    await withErrorPresented("") {
         try await body()
-    } catch {
-        AlertManager(error).present()
     }
 }
+
+
+/// Runs the `body`, and present error using ``AlertManager`` if any.
+@inlinable
+@discardableResult
+@available(*, deprecated, renamed: "withErrorPresented(_:body:)", message: "")
+@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
+public func withErrorPresented<T>(_ body: () throws -> T) -> T? {
+    withErrorPresented("") {
+        try body()
+    }
+}
+
 
 /// Runs the `body`, and present error using ``AlertManager`` if any.
 ///
@@ -305,27 +350,10 @@ public func withErrorPresented<T>(
     do {
         return try await body()
     } catch {
-        let manager = AlertManager(error)
-        AlertManager(title: title, message: manager.messageResource, actions: manager.actions).present()
+        AlertManager.throwError(title: title, error: error)
     }
     return nil
 }
-
-
-/// Runs the `body`, and present error using ``AlertManager`` if any.
-@inlinable
-@discardableResult
-@available(*, deprecated, renamed: "withErrorPresented(_:body:)", message: "")
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-public func withErrorPresented<T>(_ body: () throws -> T) -> T? {
-    do {
-        return try body()
-    } catch {
-        AlertManager(error).present()
-    }
-    return nil
-}
-
 
 /// Runs the `body`, and present error using ``AlertManager`` if any.
 ///
@@ -341,8 +369,7 @@ public func withErrorPresented<T>(
     do {
         return try body()
     } catch {
-        let manager = AlertManager(error)
-        AlertManager(title: title, message: manager.messageResource, actions: manager.actions).present()
+        AlertManager.throwError(title: title, error: error)
     }
     return nil
 }

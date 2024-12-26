@@ -33,6 +33,7 @@ import Foundation
 ///
 /// ## Topics
 /// ### Protocol Requirements
+/// - ``title``
 /// - ``message``
 ///
 /// ### Default Implementations
@@ -41,6 +42,9 @@ import Foundation
 /// - ``errorDescription``
 /// - ``failureReason``
 public protocol GenericError: LocalizedError, CustomStringConvertible, Equatable {
+    
+    /// The error description, it will be shown as the title in `AlertManager` if no other title is provided, otherwise it will be presented in the error description.
+    var title: String? { get }
     
     /// The failure reason, shown as the message in `AlertManager`.
     var message: String { get }
@@ -51,7 +55,16 @@ public protocol GenericError: LocalizedError, CustomStringConvertible, Equatable
 extension GenericError {
     
     public var description: String {
-        "\(Self.self): \(message)"
+        if let title {
+            "\(title): \(message)"
+        } else {
+            message
+        }
+    }
+    
+    /// Default implementation.
+    public var title: String? {
+        nil
     }
     
     /// - Invariant: This is inherited from `GenericError.description`
