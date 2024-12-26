@@ -144,7 +144,7 @@ public struct AlertManager: LocalizableError {
     }
     
     /// Creates an alert manager with a given error.
-    @available(*, unavailable, message: "Please use `init(_:error:)` instead")
+    @available(*, unavailable, renamed: "init(_:error:)", message: "Please use `init(_:error:)` instead")
     public init(_ error: some Error) {
         fatalError()
     }
