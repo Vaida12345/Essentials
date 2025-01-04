@@ -10,7 +10,9 @@ extension RandomAccessCollection where Index == Int {
     
     /// The max `member` index of this collection.
     @inlinable
-    public func maxIndex<T, E>(of member: (Element) throws(E) -> T) throws(E) -> Index? where E: Error, T: Comparable {
+    public func maxIndex<T, E>(
+        of member: (Element) throws(E) -> T // Experiment: The use of keyPath has significant performance implication on debug build, but insignificant on release builds.
+    ) throws(E) -> Index? where E: Error, T: Comparable {
         var i = self.startIndex
         var maxIndex: Index? = nil
         var max: T? = nil
