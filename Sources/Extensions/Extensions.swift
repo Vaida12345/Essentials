@@ -223,6 +223,7 @@ extension Optional {
 extension FileHandle {
     
     /// Writes the `utf-8` encoding string to the handler, with the terminator.
+    @available(*, deprecated, message: "The signature is catastrophically different from that of TextOutputStream.write(_:).")
     @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
     @inlinable
     public func write(_ value: String, terminator: String = "\n") throws {
