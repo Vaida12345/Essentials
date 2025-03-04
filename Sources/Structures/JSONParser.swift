@@ -45,7 +45,7 @@ import Foundation
 /// > try parser.value("pi", type: .bool)
 /// > ```
 /// > The parser would throw the error of ``ParserError/typeError(key:parentKey:type:actual:)``.
-public final class JSONParser: CustomStringConvertible {
+public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
     
     private let key: String
     
