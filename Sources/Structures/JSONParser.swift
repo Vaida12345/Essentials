@@ -343,6 +343,30 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
 }
 
 
+extension JSONParser: Codable {
+    
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.key, forKey: .key)
+        try container.encode(self.data(), forKey: .data)
+    }
+    
+    public convenience init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        try self.init(
+            key: container.decode(String.self, forKey: .key),
+            dictionary: JSONSerialization.jsonObject(with: container.decode(Data.self, forKey: .data)) as! [String : Any]
+        )
+    }
+    
+    enum CodingKeys: CodingKey {
+        case key
+        case data
+    }
+    
+}
+
+
 extension Array where Element == JSONParser {
     
     /// Creates the parser array with the json data.
