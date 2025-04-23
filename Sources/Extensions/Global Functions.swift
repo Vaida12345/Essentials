@@ -20,6 +20,8 @@ import Foundation
 ///
 /// - Returns: A value clamped within the specified range.
 ///
+/// - Remark: When `min` is greater than `max`, the return value is `min` when `x` \< `min`, `max` otherwise.
+///
 /// - Complexity: O(1)
 @inline(__always)
 public func clamp<T>(_ x: T, min: T? = nil, max: T? = nil) -> T where T: Comparable {

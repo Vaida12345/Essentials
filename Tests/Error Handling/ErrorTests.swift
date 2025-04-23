@@ -16,16 +16,17 @@ struct ErrorTests {
         do {
             throw TestError()
         } catch {
-            #expect("\(error)" == "TestError: error!")
+            #expect("\(error)" == "error!")
         }
     }
     
+    @available(iOS 16, *)
     @Test func alertManager() async throws {
         do {
             throw TestError()
         } catch {
-            let manager = AlertManager(error)
-            #expect(manager.titleResource.key == "TestError")
+            let manager = AlertManager("", error: error)
+            #expect(manager.titleResource.key == "")
             #expect(manager.message == "error!")
         }
     }

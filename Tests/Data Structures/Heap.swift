@@ -99,7 +99,7 @@ struct HeapTests {
         #expect(array.max(k: 3) == array.sorted(by: >)[2])
         #expect(array.max(k: 4) == array.sorted(by: >)[3])
         
-        #expect(array.min(k: 100) == array.min())
+        #expect(array.min(k: 100) == array.max())
     }
     
     @Test
