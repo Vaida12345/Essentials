@@ -65,7 +65,7 @@ extension RandomAccessCollection where Index == Int {
         return minIndex
     }
     
-    /// The max `member` of this collection.
+    /// The min `member` of this collection.
     ///
     /// This is equivalent to
     /// ```swift
@@ -86,13 +86,17 @@ extension RandomAccessCollection where Index == Int {
         return min
     }
     
-    /// The max `member` of this collection.
+    /// The average `member` of this collection.
     ///
     /// This is equivalent to
     /// ```swift
-    /// self.map(member).max()
+    /// self.map(member).mean
     /// ```
     /// But more efficient.
+    ///
+    ///
+    /// - SeeAlso:
+    /// This is the does the same as ``mean(of:)``.
     @inlinable
     public func average<T, E>(of member: (Element) throws(E) -> T) throws(E) -> T? where E: Error, T: BinaryFloatingPoint {
         var i = self.startIndex
@@ -103,6 +107,21 @@ extension RandomAccessCollection where Index == Int {
             i &+= 1
         }
         return cumulative / T(self.count)
+    }
+    
+    /// The average `member` of this collection.
+    ///
+    /// This is equivalent to
+    /// ```swift
+    /// self.map(member).mean
+    /// ```
+    /// But more efficient.
+    ///
+    /// - SeeAlso:
+    /// This is the does the same as ``average(of:)``.
+    @inlinable
+    public func mean<T, E>(of member: (Element) throws(E) -> T) throws(E) -> T? where E: Error, T: BinaryFloatingPoint {
+        try self.average(of: member)
     }
     
     /// An efficient forEach.
