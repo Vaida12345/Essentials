@@ -37,6 +37,24 @@ public func clamp<T>(_ x: T, min: T? = nil, max: T? = nil) -> T where T: Compara
 }
 
 
+/// Linearly interpolates `x` from `domain` to `range`.
+///
+/// This function takes an input value `x` within a specified `domain` and maps it proportionally into a target `range`.
+///
+/// - Parameters:
+///   - x: The input value to interpolate. May lie inside or outside `domain`.
+///   - domain: The closed range representing the input bounds.
+///   - range: The closed range representing the output bounds.
+///
+/// - Returns: The value of `x` remapped from `domain` into `range`.
+///
+/// - Complexity: O(1)
+@inlinable
+public func linearInterpolate<T>(_ x: T, in domain: ClosedRange<T>, to range: ClosedRange<T>) -> T where T: FloatingPoint {
+    range.lowerBound + (x - domain.lowerBound) / (domain.upperBound - domain.lowerBound) * (range.upperBound - range.lowerBound)
+}
+
+
 /// Redirects the standard output and captures the result.
 @inlinable
 @available(macOS 10.15, iOS 13, watchOS 6, *)
