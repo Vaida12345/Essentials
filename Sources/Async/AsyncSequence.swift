@@ -64,8 +64,6 @@ extension AsyncSequence {
     ///
     /// This methods waits and collect the results of the async sequence.
     ///
-    /// - Tip: It could be a better idea to use ``next()`` or ``async`` to achieve a stream-like sequence for performance.
-    ///
     /// - returns: The returned `sequence` is in the same order as the input. The returned array is populated on return.
     ///
     /// - Complexity: O(*n*).

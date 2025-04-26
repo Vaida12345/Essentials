@@ -8,7 +8,7 @@
 
 /// Serialize two async sequences.
 ///
-/// Do not initialize this structure directly, use ``AsyncSequence-Implementations/+(_:_:)``
+/// Do not initialize this structure directly, use `AsyncSequence/+(_:_:)`
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public struct AsyncSerializedSequence<LHS, RHS>: AsyncSequence where LHS: AsyncSequence, RHS: AsyncSequence, LHS.Element == RHS.Element {
     
