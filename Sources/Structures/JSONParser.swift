@@ -140,6 +140,8 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
                     return Optional<Double>.none as! T
                 case .bool:
                     return Optional<Bool>.none as! T
+                case .any:
+                    return Optional<Any>.none as! T
                 }
             } else {
                 switch type.key {
@@ -151,6 +153,8 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
                     return value as! T
                 case .bool:
                     guard let value = value as? Bool else { throw ParserError.typeError(key: key, parentKey: "root", type: type.key.rawValue, actual: "\(Swift.type(of: value))") }
+                    return value as! T
+                case .any:
                     return value as! T
                 }
             }
@@ -332,6 +336,9 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
         /// Indicating extraction of `Bool`.
         public static var bool: Object<Bool> { .init(key: .bool, isOptional: false) }
         
+        /// Indicating extraction of anything.
+        public static var any: Object<Any> { .init(key: .any, isOptional: false) }
+        
         
         /// Marks the object as `optional`.
         public var optional: Object<T?> {
@@ -343,6 +350,7 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
         case string
         case numeric
         case bool
+        case any
     }
     
 }
