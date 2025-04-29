@@ -13,5 +13,7 @@ struct JSONParser {
     @Test func parserInt() async throws {
         let parser = try Essentials.JSONParser(string: #"{"a": 1}"#)
         try #expect(parser["a", .integer] == Int(1))
+        
+        try print(parser.array("a", type: .numeric))
     }
 }

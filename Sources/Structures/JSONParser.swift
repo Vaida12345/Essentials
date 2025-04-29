@@ -8,6 +8,7 @@
 //
 
 import Foundation
+import OSLog
 
 
 /// The parser that can handle json and throw detailed errors.
@@ -36,7 +37,7 @@ import Foundation
 /// > }
 /// >
 /// > let parser = try JSONParser(data: json.data())
-/// > try parser.value("pi", type: .numeric.optional) // 3.1415?
+/// > try parser.value("pi") // 3.1415
 /// > ```
 ///
 /// > Throws:
@@ -44,13 +45,13 @@ import Foundation
 /// > ```swift
 /// > try parser.value("pi", type: .bool)
 /// > ```
-/// > The parser would throw the error of ``ParserError/typeError(key:parentKey:type:actual:)``.
+/// > The parser would throw the error of ``ParserError/typeError(key:expected:actual:)``.
 public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
     
     private let key: String
     
     /// The dictionary that made up the object.
-    private let dictionary: [String: Any]
+    private let dictionary: [String : Any]
     
     
     /// The pretty printed json object.
@@ -72,10 +73,10 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
     ///   - data: A data object containing JSON data.
     ///   - options: Options for reading the JSON data and creating the Foundation objects.
     ///
-    /// - throws: JSON parsing error, ``ParserError/notAnObject(key:)``
+    /// - throws: JSON parsing error.
     public init(data: Data, options: JSONSerialization.ReadingOptions = []) throws {
         let object = try JSONSerialization.jsonObject(with: data, options: options)
-        guard let dictionary = object as? [String: Any] else { throw ParserError.notAnObject(key: "root") }
+        let dictionary = object as! [String : Any]
         self.dictionary = dictionary
         self.key = "root"
     }
@@ -86,10 +87,10 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
     ///   - string: A data object containing JSON data.
     ///   - options: Options for reading the JSON data and creating the Foundation objects.
     ///
-    /// - throws: JSON parsing error, ``ParserError/notAnObject(key:)``
+    /// - throws: JSON parsing error.
     public init(string: String, options: JSONSerialization.ReadingOptions = []) throws {
         let object = try JSONSerialization.jsonObject(with: string.data(using: .utf8)!, options: options)
-        guard let dictionary = object as? [String: Any] else { throw ParserError.notAnObject(key: "root") }
+        let dictionary = object as! [String : Any]
         self.dictionary = dictionary
         self.key = "root"
     }
@@ -104,6 +105,12 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
     /// Generates a JSON document using the container this parser.
     public func data() throws -> Data {
         try JSONSerialization.data(withJSONObject: self.dictionary)
+    }
+    
+    
+    /// Returns a bool determining if the parser has the given `key`.
+    public func hasKey(_ key: String) -> Bool {
+        self.dictionary[key] != nil
     }
     
     
@@ -122,51 +129,11 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
     /// - Parameters:
     ///   - key: The key for the value.
     ///   - type: The type of the returned value.
-    ///
-    /// - throws: ``ParserError/keyError(key:parentKey:)``, ``ParserError/typeError(key:parentKey:type:actual:)``
-    public func value<T>(_ key: String, type: Object<T>) throws -> T {
-        guard let value = dictionary[key] else { throw ParserError.keyError(key: key, parentKey: "root") }
-        
-        return try __parseOneValue(key: key, value: value, type: type)
-    }
-    
-    private func __parseOneValue<T>(key: String, value: Any, type: Object<T>) throws -> T {
-        if type.isOptional {
-            if value is NSNull {
-                switch type.key {
-                case .string:
-                    return Optional<String>.none as! T
-                case .numeric:
-                    return Optional<Double>.none as! T
-                case .integer:
-                    return Optional<Int>.none as! T
-                case .bool:
-                    return Optional<Bool>.none as! T
-                case .any:
-                    return Optional<Any>.none as! T
-                }
-            } else {
-                switch type.key {
-                case .string:
-                    guard let value = value as? String else { throw ParserError.typeError(key: key, parentKey: "root", type: type.key.rawValue, actual: "\(Swift.type(of: value))") }
-                    return value as! T
-                case .numeric:
-                    guard let value = value as? Double else { throw ParserError.typeError(key: key, parentKey: "root", type: type.key.rawValue, actual: "\(Swift.type(of: value))") }
-                    return value as! T
-                case .integer:
-                    guard let value = value as? Int else { throw ParserError.typeError(key: key, parentKey: "root", type: type.key.rawValue, actual: "\(Swift.type(of: value))") }
-                    return value as! T
-                case .bool:
-                    guard let value = value as? Bool else { throw ParserError.typeError(key: key, parentKey: "root", type: type.key.rawValue, actual: "\(Swift.type(of: value))") }
-                    return value as! T
-                case .any:
-                    return value as! T
-                }
-            }
-        } else {
-            guard let value = value as? T else { throw ParserError.typeError(key: key, parentKey: "root", type:type.key.rawValue, actual: "\(Swift.type(of: value))") }
-            return value
-        }
+    public func value<T>(_ key: String, type: Object<T>) throws(ParserError) -> T {
+        guard type.key != .parser else { return try self.object(key) as! T }
+        guard let value = dictionary[key] else { throw .log(.keyError(key: key), description: self.description) }
+        guard let value = value as? T else { throw .log(.typeError(key: key, expected: type.key.rawValue, actual: "\(Swift.type(of: value))"), description: self.description) }
+        return value
     }
     
     /// Assume this element is an object, and returns the object associated with `key`.
@@ -185,11 +152,9 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
     ///
     /// - Parameters:
     ///   - key: The key for the value.
-    ///
-    /// - throws: ``ParserError/keyError(key:parentKey:)``, ``ParserError/notAnObject(key:)``
-    public func object(_ key: String) throws -> JSONParser {
-        guard let object = dictionary[key] else { throw ParserError.keyError(key: key, parentKey: "root") }
-        guard let dictionary = object as? [String: Any] else { throw ParserError.notAnObject(key: key) }
+    public func object(_ key: String) throws(ParserError) -> JSONParser {
+        guard let object = dictionary[key] else { throw .log(.keyError(key: key), description: self.description) }
+        guard let dictionary = object as? [String: Any] else { throw .log(.typeError(key: key, expected: "JSONParser", actual: "\(Swift.type(of: object))"), description: self.description) }
         return JSONParser(key: key, dictionary: dictionary)
     }
     
@@ -209,11 +174,9 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
     ///
     /// - Parameters:
     ///   - key: The key for the value.
-    ///
-    /// - throws: ``ParserError/keyError(key:parentKey:)``, ``ParserError/notAnArray(key:)``
-    public func array(_ key: String) throws -> [JSONParser] {
-        guard let object = dictionary[key] else { throw ParserError.keyError(key: key, parentKey: "root") }
-        guard let dictionaries = object as? [[String: Any]] else { throw ParserError.notAnArray(key: key) }
+    public func array(_ key: String) throws(ParserError) -> [JSONParser] {
+        guard let object = dictionary[key] else { throw .log(.keyError(key: key), description: self.description) }
+        guard let dictionaries = object as? [[String: Any]] else { throw .log(.typeError(key: key, expected: "[JSONParser]", actual: "\(Swift.type(of: object))"), description: self.description) }
         return dictionaries.map { JSONParser(key: key, dictionary: $0) }
     }
     
@@ -234,15 +197,11 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
     /// - Parameters:
     ///   - key: The key for the value.
     ///   - type: The type of each element in the array.
-    ///
-    /// - throws: ``ParserError/keyError(key:parentKey:)``, ``ParserError/notAnArray(key:)``, ``ParserError/typeError(key:parentKey:type:actual:)``
-    public func array<T>(_ key: String, type: Object<T>) throws -> [T] {
-        guard let object = dictionary[key] else { throw ParserError.keyError(key: key, parentKey: "root") }
-        guard let dictionaries = object as? [Any] else { throw ParserError.notAnArray(key: key) }
-        
-        return try dictionaries.map { value in
-            try __parseOneValue(key: key, value: value, type: type)
-        }
+    public func array<T>(_ key: String, type: Object<T>) throws(ParserError) -> [T] {
+        guard type.key != .parser else { return try self.array(key) as! [T] }
+        guard let values = dictionary[key] else { throw .log(.keyError(key: key), description: self.description) }
+        guard let values = values as? [T] else { throw .log(.typeError(key: key, expected: "[\(T.self)]", actual: "\(Swift.type(of: values))"), description: self.description) }
+        return values
     }
     
     /// Assume this element is an object, and returns the value associated with `key`.
@@ -257,13 +216,11 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
     /// > try parser["pi", .numeric] // 3.1415
     /// > ```
     ///
-    /// The is equivalent to ``value(_:type:)``, DO NOT use this to obtain a JSON Object.
+    /// The is equivalent to ``value(_:type:)``.
     ///
     /// - Parameters:
     ///   - key: The key for the value.
     ///   - type: The type of the returned value.
-    ///
-    /// - throws: ``ParserError/keyError(key:parentKey:)``, ``ParserError/typeError(key:parentKey:type:actual:)``
     public subscript<T>(_ key: String, type: Object<T> = .string) -> T {
         get throws {
             try self.value(key, type: type)
@@ -278,14 +235,7 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
         ///
         /// - Parameters:
         ///   - key: The key itself.
-        ///   - parentKey: The key in its parent to this object.
-        case keyError(key: String, parentKey: String)
-        
-        /// The error when the given key to the dictionary is not an object.
-        ///
-        /// - Parameters:
-        ///   - key: The key itself.
-        case notAnObject(key: String)
+        case keyError(key: String)
         
         /// The error when the given key to the dictionary is associated with a value, but the type does not match.
         ///
@@ -294,13 +244,7 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
         ///   - parentKey: The key in its parent to this object.
         ///   - type: The expected type.
         ///   - actual: The found type
-        case typeError(key: String, parentKey: String, type: String, actual: String)
-        
-        /// The error when the given key to the dictionary is not an array.
-        ///
-        /// - Parameters:
-        ///   - key: The key itself.
-        case notAnArray(key: String)
+        case typeError(key: String, expected: String, actual: String)
         
         public var title: String {
             "JSON Parsing Error"
@@ -308,19 +252,26 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
         
         public var message: String {
             switch self {
-            case let .keyError(key, parentKey):
-                return "The key \"\(key)\" not found in the JSON object \"\(parentKey)\""
-            case let .notAnObject(key):
-                return "\"\(key)\" is not an JSON object"
-            case let .typeError(key, parentKey, type, actual):
+            case let .keyError(key):
+                return "The key \"\(key)\" not found."
+            case let .typeError(key, type, actual):
                 if actual == "NSNull" {
-                    return "The type associated with \"\(key)\" under \"\(parentKey)\" is `nil`."
+                    return "The type associated with \"\(key)\" is `nil`."
                 } else {
-                    return "The type associated with \"\(key)\" under \"\(parentKey)\" is not \(type). Found: \(actual)."
+                    return "The type associated with \"\(key)\" is \(actual), expected \(type)."
                 }
-            case let .notAnArray(key):
-                return "\"\(key)\" is not an array of JSON objects"
             }
+        }
+        
+        @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
+        static let logger = Logger(subsystem: "JSONParser", category: "ParserError")
+        
+        
+        fileprivate static func log(_ error: ParserError, description: String) -> ParserError {
+            if #available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *) {
+                ParserError.logger.error("\(error.message) \(description)")
+            }
+            return error
         }
     }
     
@@ -329,29 +280,25 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
         
         fileprivate let key: Key
         
-        fileprivate let isOptional: Bool
-        
         
         /// Indicating extraction of `String`.
-        public static var string: Object<String> { .init(key: .string, isOptional: false) }
+        public static var string: Object<String> { .init(key: .string) }
         
         /// Indicating extraction of `Double`.
-        public static var numeric: Object<Double> { .init(key: .numeric, isOptional: false) }
+        public static var numeric: Object<Double> { .init(key: .numeric) }
         
         /// Indicating extraction of `Int`.
-        public static var integer: Object<Int> { .init(key: .integer, isOptional: false) }
+        public static var integer: Object<Int> { .init(key: .integer) }
         
         /// Indicating extraction of `Bool`.
-        public static var bool: Object<Bool> { .init(key: .bool, isOptional: false) }
+        public static var bool: Object<Bool> { .init(key: .bool) }
         
         /// Indicating extraction of anything.
-        public static var any: Object<Any> { .init(key: .any, isOptional: false) }
+        public static var any: Object<Any> { .init(key: .any) }
         
+        /// Indicating extraction of `JSONParser`.
+        public static var parser: Object<JSONParser> { .init(key: .parser) }
         
-        /// Marks the object as `optional`.
-        public var optional: Object<T?> {
-            .init(key: self.key, isOptional: true)
-        }
     }
     
     fileprivate enum Key: String, Equatable {
@@ -360,6 +307,7 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
         case integer
         case bool
         case any
+        case parser
     }
     
 }
@@ -398,7 +346,7 @@ extension Array where Element == JSONParser {
     ///   - options: Options for reading the JSON data and creating the Foundation objects.
     public init(data: Data, options: JSONSerialization.ReadingOptions = []) throws {
         let object = try JSONSerialization.jsonObject(with: data, options: options)
-        guard let dictionaries = object as? [[String: Any]] else { throw JSONParser.ParserError.notAnArray(key: "root") }
+        guard let dictionaries = object as? [[String: Any]] else { throw JSONParser.ParserError.typeError(key: "root", expected: "[JSONParser]", actual: "\(Swift.type(of: object))") }
         self = dictionaries.map { JSONParser(key: "root", dictionary: $0) }
     }
     

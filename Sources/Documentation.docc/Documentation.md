@@ -40,3 +40,8 @@ https://www.github.com/Vaida12345/Essentials
 ### Formatters
 
 - ``TimeIntervalFormatter``
+
+### Structures
+
+- ``JSONParser``
+- ``KeyChainManager``
