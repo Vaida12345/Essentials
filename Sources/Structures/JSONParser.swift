@@ -21,12 +21,12 @@ import OSLog
 ///
 /// | Component | function |
 /// | ----------- | ----------- |
-/// | obtain value | ``value(_:type:)`` |
+/// | obtain value | ``value(for:)`` |
 /// | obtain object | ``object(_:)`` |
 /// | obtain array of values | ``array(_:type:)`` |
 /// | obtain array of objects | ``array(_:)`` |
 ///
-/// With ``subscript(_:_:)`` equivalent to ``value(_:type:)``.
+/// With ``subscript(_:_:)`` similar to ``value(for:)``.
 ///
 /// > Example:
 /// >
@@ -123,16 +123,14 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
     /// > }
     /// >
     /// > let parser = try JSONParser(data: json.data())
-    /// > try parser.value("pi", type: .numeric) // 3.1415
+    /// > let value: Double = try parser.value("pi") // 3.1415
     /// > ```
     ///
     /// - Parameters:
     ///   - key: The key for the value.
-    ///   - type: The type of the returned value.
-    public func value<T>(_ key: String, type: Object<T>) throws(ParserError) -> T {
-        guard type.key != .parser else { return try self.object(key) as! T }
+    public func value<T>(for key: String) throws(ParserError) -> T {
         guard let value = dictionary[key] else { throw .log(.keyError(key: key), description: self.description) }
-        guard let value = value as? T else { throw .log(.typeError(key: key, expected: type.key.rawValue, actual: "\(Swift.type(of: value))"), description: self.description) }
+        guard let value = value as? T else { throw .log(.typeError(key: key, expected: "\(T.self)", actual: "\(Swift.type(of: value))"), description: self.description) }
         return value
     }
     
@@ -216,14 +214,15 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
     /// > try parser["pi", .numeric] // 3.1415
     /// > ```
     ///
-    /// The is equivalent to ``value(_:type:)``.
+    /// This is similar to ``value(for:)``.
     ///
     /// - Parameters:
     ///   - key: The key for the value.
     ///   - type: The type of the returned value.
     public subscript<T>(_ key: String, type: Object<T> = .string) -> T {
         get throws {
-            try self.value(key, type: type)
+            guard type.key != .parser else { return try self.object(key) as! T }
+            return try self.value(for: key)
         }
     }
     

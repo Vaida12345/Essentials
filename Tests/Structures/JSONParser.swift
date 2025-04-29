@@ -6,14 +6,18 @@
 //
 
 import Testing
-@testable import Essentials
+import Essentials
 
 @Suite
-struct JSONParser {
+struct JSONParserTests {
     @Test func parserInt() async throws {
         let parser = try Essentials.JSONParser(string: #"{"a": 1}"#)
         try #expect(parser["a", .integer] == Int(1))
+        let b: Int = try parser.value(for: "a")
+        #expect(b == 1)
         
-        try print(parser.array("a", type: .numeric))
+        #expect(throws: Essentials.JSONParser.ParserError.typeError(key: "a", expected: "[Double]", actual: "__CFNSNumber")) {
+            try print(parser.array("a", type: .numeric))
+        }
     }
 }
