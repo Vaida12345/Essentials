@@ -138,6 +138,8 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
                     return Optional<String>.none as! T
                 case .numeric:
                     return Optional<Double>.none as! T
+                case .integer:
+                    return Optional<Int>.none as! T
                 case .bool:
                     return Optional<Bool>.none as! T
                 case .any:
@@ -150,6 +152,9 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
                     return value as! T
                 case .numeric:
                     guard let value = value as? Double else { throw ParserError.typeError(key: key, parentKey: "root", type: type.key.rawValue, actual: "\(Swift.type(of: value))") }
+                    return value as! T
+                case .integer:
+                    guard let value = value as? Int else { throw ParserError.typeError(key: key, parentKey: "root", type: type.key.rawValue, actual: "\(Swift.type(of: value))") }
                     return value as! T
                 case .bool:
                     guard let value = value as? Bool else { throw ParserError.typeError(key: key, parentKey: "root", type: type.key.rawValue, actual: "\(Swift.type(of: value))") }
@@ -333,6 +338,9 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
         /// Indicating extraction of `Double`.
         public static var numeric: Object<Double> { .init(key: .numeric, isOptional: false) }
         
+        /// Indicating extraction of `Int`.
+        public static var integer: Object<Int> { .init(key: .integer, isOptional: false) }
+        
         /// Indicating extraction of `Bool`.
         public static var bool: Object<Bool> { .init(key: .bool, isOptional: false) }
         
@@ -349,6 +357,7 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
     fileprivate enum Key: String, Equatable {
         case string
         case numeric
+        case integer
         case bool
         case any
     }
