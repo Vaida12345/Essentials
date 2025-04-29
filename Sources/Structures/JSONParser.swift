@@ -60,6 +60,11 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
         return string
     }
     
+    /// The keys in the current parser.
+    public var keys: Dictionary<String, Any>.Keys {
+        self.dictionary.keys
+    }
+    
     
     /// Creates the parser with the json data.
     ///
