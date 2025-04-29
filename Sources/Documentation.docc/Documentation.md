@@ -25,23 +25,26 @@ https://www.github.com/Vaida12345/Essentials
 
 ## Topics
 
-### Data Structures
+### Structures
 
-- ``Heap``
-- ``PriorityQueue``
-- ``Queue``
+- ``JSONParser``
+- ``KeyChainManager``
 
 ### Error Handling
 
 - ``GenericError``
 - ``LocalizableError``
 - ``AlertManager``
+- ``TimeoutError``
 
-### Formatters
+### Data Structures
 
-- ``TimeIntervalFormatter``
+- ``Heap``
+- ``PriorityQueue``
+- ``Queue``
 
-### Structures
 
-- ``JSONParser``
-- ``KeyChainManager``
+### Auxiliary Structures
+You do not usually interact with these structures directly
+
+- <doc:Auxiliary>
