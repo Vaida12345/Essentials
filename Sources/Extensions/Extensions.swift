@@ -198,6 +198,38 @@ public extension Duration {
 }
 
 
+extension FileHandle {
+    
+    /// Writes the `utf-8` encoding string to the handler, with the terminator.
+    @available(*, deprecated, message: "The signature is catastrophically different from that of TextOutputStream.write(_:).")
+    @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
+    @inlinable
+    public func write(_ value: String, terminator: String = "\n") throws {
+        try self.write(contentsOf: (value + terminator).data(using: .utf8)!)
+    }
+    
+}
+
+
+@available(macOS 11, iOS 14, watchOS 7, tvOS 14, *)
+extension Logger {
+    
+    public init(subsystem: String, function: String = #function) {
+        self.init(subsystem: subsystem, category: #function)
+    }
+    
+}
+
+@available(macOS 11, iOS 14, watchOS 7, tvOS 14, *)
+extension OSLogInterpolation {
+    
+    mutating func appendInterpolation(_ error: @autoclosure @escaping () -> some GenericError) {
+        self.appendInterpolation(error().debugDescription)
+    }
+    
+}
+
+
 extension OptionSet {
     
     /// The option where none is selected.
@@ -215,19 +247,6 @@ extension Optional {
         case .some(let wrapped):
             return predicate(wrapped)
         }
-    }
-    
-}
-
-
-extension FileHandle {
-    
-    /// Writes the `utf-8` encoding string to the handler, with the terminator.
-    @available(*, deprecated, message: "The signature is catastrophically different from that of TextOutputStream.write(_:).")
-    @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
-    @inlinable
-    public func write(_ value: String, terminator: String = "\n") throws {
-        try self.write(contentsOf: (value + terminator).data(using: .utf8)!)
     }
     
 }
@@ -393,19 +412,3 @@ extension UnsafeMutableBufferPointer {
     }
     
 }
-
-
-#if canImport(Vision)
-import Vision
-
-
-public extension VNRectangleObservation {
-    
-    /// The rect that this observation represents
-    @inlinable
-    func rect(for image: CGImage) -> CGRect {
-        VNImageRectForNormalizedRect(self.boundingBox, image.width, image.height)
-    }
-    
-}
-#endif

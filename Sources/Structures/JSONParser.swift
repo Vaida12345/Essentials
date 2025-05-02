@@ -129,8 +129,8 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
     /// - Parameters:
     ///   - key: The key for the value.
     public func value<T>(for key: String) throws(ParserError) -> T {
-        guard let value = dictionary[key] else { throw .log(.keyError(key: key), description: self.description) }
-        guard let value = value as? T else { throw .log(.typeError(key: key, expected: "\(T.self)", actual: "\(Swift.type(of: value))"), description: self.description) }
+        guard let value = dictionary[key] else { throw .init(code: .keyError, key: key, details: self.description) }
+        guard let value = value as? T else { throw .init(code: .typeMismatch(expected: "\(T.self)", actual: "\(Swift.type(of: value))"), key: key, details: self.description) }
         return value
     }
     
@@ -151,8 +151,8 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
     /// - Parameters:
     ///   - key: The key for the value.
     public func object(_ key: String) throws(ParserError) -> JSONParser {
-        guard let object = dictionary[key] else { throw .log(.keyError(key: key), description: self.description) }
-        guard let dictionary = object as? [String: Any] else { throw .log(.typeError(key: key, expected: "JSONParser", actual: "\(Swift.type(of: object))"), description: self.description) }
+        guard let object = dictionary[key] else { throw .init(code: .keyError, key: key, details: self.description) }
+        guard let dictionary = object as? [String: Any] else { throw .init(code: .typeMismatch(expected: "JSONParser", actual: "\(Swift.type(of: object))"), key: key, details: self.description) }
         return JSONParser(key: key, dictionary: dictionary)
     }
     
@@ -173,8 +173,8 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
     /// - Parameters:
     ///   - key: The key for the value.
     public func array(_ key: String) throws(ParserError) -> [JSONParser] {
-        guard let object = dictionary[key] else { throw .log(.keyError(key: key), description: self.description) }
-        guard let dictionaries = object as? [[String: Any]] else { throw .log(.typeError(key: key, expected: "[JSONParser]", actual: "\(Swift.type(of: object))"), description: self.description) }
+        guard let object = dictionary[key] else { throw .init(code: .keyError, key: key, details: self.description) }
+        guard let dictionaries = object as? [[String: Any]] else { throw .init(code: .typeMismatch(expected: "[JSONParser]", actual: "\(Swift.type(of: object))"), key: key, details: self.description) }
         return dictionaries.map { JSONParser(key: key, dictionary: $0) }
     }
     
@@ -197,8 +197,8 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
     ///   - type: The type of each element in the array.
     public func array<T>(_ key: String, type: Object<T>) throws(ParserError) -> [T] {
         guard type.key != .parser else { return try self.array(key) as! [T] }
-        guard let values = dictionary[key] else { throw .log(.keyError(key: key), description: self.description) }
-        guard let values = values as? [T] else { throw .log(.typeError(key: key, expected: "[\(T.self)]", actual: "\(Swift.type(of: values))"), description: self.description) }
+        guard let values = dictionary[key] else { throw .init(code: .keyError, key: key, details: self.description) }
+        guard let values = values as? [T] else { throw .init(code: .typeMismatch(expected: "[\(T.self)]", actual: "\(Swift.type(of: values))"), key: key, details: self.description) }
         return values
     }
     
@@ -228,49 +228,51 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
     
     
     /// The only error thrown by ``JSONParser``.
-    public enum ParserError: GenericError {
+    public struct ParserError: GenericError {
         
-        /// The error when the given key to the dictionary is not fount.
-        ///
-        /// - Parameters:
-        ///   - key: The key itself.
-        case keyError(key: String)
+        /// The error code
+        public let code: Code
         
-        /// The error when the given key to the dictionary is associated with a value, but the type does not match.
-        ///
-        /// - Parameters:
-        ///   - key: The key itself.
-        ///   - parentKey: The key in its parent to this object.
-        ///   - type: The expected type.
-        ///   - actual: The found type
-        case typeError(key: String, expected: String, actual: String)
+        /// The JSON key that caused the error
+        public let key: String
+        
+        /// The JSON string
+        public let details: String
         
         public var title: String {
-            "JSON Parsing Error"
+            switch self.code {
+            case .keyError:
+                "JSON Parsing Error: Key Not Found"
+            case .typeMismatch:
+                "JSON Parsing Error: Type Mismatch"
+            }
         }
         
         public var message: String {
-            switch self {
-            case let .keyError(key):
-                return "The key \"\(key)\" not found."
-            case let .typeError(key, type, actual):
+            switch self.code {
+            case .keyError:
+                "The key \"\(key)\" not found."
+            case .typeMismatch(let expected, let actual):
                 if actual == "NSNull" {
-                    return "The type associated with \"\(key)\" is `nil`."
+                    "The data associated with \"\(key)\" is `nil`."
                 } else {
-                    return "The type associated with \"\(key)\" is \(actual), expected \(type)."
+                    "The data associated with \"\(key)\" is \(actual), expected \(expected)."
                 }
             }
         }
         
-        @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
-        static let logger = Logger(subsystem: "JSONParser", category: "ParserError")
-        
-        
-        fileprivate static func log(_ error: ParserError, description: String) -> ParserError {
-            if #available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *) {
-                ParserError.logger.error("\(error.message) \(description)")
-            }
-            return error
+        public enum Code: Equatable, Sendable {
+            
+            /// The error when the given key to the dictionary is not fount.
+            case keyError
+            
+            /// The error when the given key to the dictionary is associated with a value, but the type does not match.
+            ///
+            /// - Parameters:
+            ///   - type: The expected type.
+            ///   - actual: The found type
+            case typeMismatch(expected: String, actual: String)
+            
         }
     }
     
@@ -345,7 +347,9 @@ extension Array where Element == JSONParser {
     ///   - options: Options for reading the JSON data and creating the Foundation objects.
     public init(data: Data, options: JSONSerialization.ReadingOptions = []) throws {
         let object = try JSONSerialization.jsonObject(with: data, options: options)
-        guard let dictionaries = object as? [[String: Any]] else { throw JSONParser.ParserError.typeError(key: "root", expected: "[JSONParser]", actual: "\(Swift.type(of: object))") }
+        guard let dictionaries = object as? [[String: Any]] else {
+            throw JSONParser.ParserError(code: .typeMismatch(expected: "[JSONParser]", actual: "\(Swift.type(of: object))"), key: "", details: String(data: data, encoding: .utf8) ?? data.description)
+        }
         self = dictionaries.map { JSONParser(key: "root", dictionary: $0) }
     }
     

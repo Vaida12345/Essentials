@@ -35,25 +35,43 @@ import Foundation
 /// ### Protocol Requirements
 /// - ``title``
 /// - ``message``
+/// - ``details``
 ///
 /// ### Default Implementations
 /// - ``description``
+/// - ``debugDescription``
 /// - ``localizedDescription``
 /// - ``errorDescription``
 /// - ``failureReason``
-public protocol GenericError: LocalizedError, CustomStringConvertible, Equatable {
+public protocol GenericError: LocalizedError, CustomStringConvertible, CustomDebugStringConvertible, Equatable {
     
-    /// The error description, it will be shown as the title in `AlertManager` if no other title is provided, otherwise it will be presented in the error description.
+    /// The title of the error suitable for display to users.
+    ///
+    /// This message will be shown as the title in `AlertManager` if no other title is provided, otherwise it will be presented in the error description.
+    ///
+    /// The default implementation returns `nil`.
     var title: String? { get }
     
-    /// The failure reason, shown as the message in `AlertManager`.
+    /// The message of the error suitable for display to users.
+    ///
+    /// The message will be shown as the message in `AlertManager`.
     var message: String { get }
+    
+    /// Additional details of the error suitable for debugging.
+    ///
+    /// This message is attached to the ``debugDescription``. This message is not displayed to users through `AlertManager` and is intended for developers for debugging purposes.
+    ///
+    /// The default implementation returns `nil`.
+    var details: String? { get }
     
 }
 
 
 extension GenericError {
     
+    /// A description suitable for generic audience.
+    ///
+    /// - SeeAlso: ``debugDescription`` for debug details.
     public var description: String {
         if let title {
             "\(title): \(message)"
@@ -62,8 +80,22 @@ extension GenericError {
         }
     }
     
+    /// A description with debug details attached.
+    public var debugDescription: String {
+        if let details {
+            self.description + "\n\(details)"
+        } else {
+            self.description
+        }
+    }
+    
     /// Default implementation.
     public var title: String? {
+        nil
+    }
+    
+    /// Default implementation.
+    public var details: String? {
         nil
     }
     
