@@ -45,7 +45,7 @@ import OSLog
 /// > ```swift
 /// > try parser.value("pi", type: .bool)
 /// > ```
-/// > The parser would throw the error of ``ParserError/typeError(key:expected:actual:)``.
+/// > The parser would throw the error of ``ParserError/Code/typeMismatch(expected:actual:)``.
 public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
     
     private let key: String
