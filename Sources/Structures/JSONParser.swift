@@ -236,10 +236,9 @@ public final class JSONParser: CustomStringConvertible, @unchecked Sendable {
         /// The JSON key that caused the error
         public let key: String
         
-        /// The JSON string
-        public let details: String
+        public let details: String?
         
-        public var title: String {
+        public var title: String? {
             switch self.code {
             case .keyError:
                 "JSON Parsing Error: Key Not Found"
