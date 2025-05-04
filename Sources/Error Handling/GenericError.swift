@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import OSLog
 
 
 /// A generic error.
@@ -30,6 +31,11 @@ import Foundation
 ///     }
 /// }
 /// ```
+///
+/// > Tip:
+/// > When forming a description for debugging purposes, it is recommended to use `String(reflecting:)` to obtain the debug description of an error.
+/// >
+/// > Nevertheless, when using `OSLog` to log an error, you can use `"\(error)"` because it supports the logging of errors using their debug descriptions.
 ///
 /// ## Topics
 /// ### Protocol Requirements
@@ -112,6 +118,16 @@ extension GenericError {
     /// - Invariant: This is inherited from ``GenericError/message``
     public var failureReason: String? {
         self.message
+    }
+    
+}
+
+
+@available(macOS 11, iOS 14, watchOS 7, tvOS 14, *)
+extension OSLogInterpolation {
+    
+    mutating func appendInterpolation(_ error: @autoclosure @escaping () -> some GenericError) {
+        self.appendInterpolation(error().debugDescription)
     }
     
 }

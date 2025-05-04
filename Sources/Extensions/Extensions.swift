@@ -220,15 +220,6 @@ extension Logger {
     
 }
 
-@available(macOS 11, iOS 14, watchOS 7, tvOS 14, *)
-extension OSLogInterpolation {
-    
-    mutating func appendInterpolation(_ error: @autoclosure @escaping () -> some GenericError) {
-        self.appendInterpolation(error().debugDescription)
-    }
-    
-}
-
 
 extension OptionSet {
     
