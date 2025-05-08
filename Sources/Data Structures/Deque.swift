@@ -24,10 +24,10 @@
 public final class Deque<Element> {
     
     /// The node containing the first element.
-    private var front: Node?
+    public private(set) var front: Node?
     
     /// The node containing the last element.
-    private var back: Node?
+    public private(set) var back: Node?
     
     /// The number of elements in the queue.
     ///
@@ -57,15 +57,6 @@ public final class Deque<Element> {
         public fileprivate(set) var next: Node?
         
         
-        /// Clean the node by removing references to its ``prev`` and ``next``.
-        ///
-        /// You must call this method when you obtained the node with a method marked as `unsafe`.
-        public func clean() {
-            self.prev = nil
-            self.next = nil
-        }
-        
-        
         fileprivate init(_ content: Element) {
             self.content = content
             self.next = nil
@@ -86,6 +77,7 @@ public final class Deque<Element> {
         self.count = 0
     }
     
+    @inlinable
     public convenience init(_ sequence: some Sequence<Element>) {
         self.init()
         
@@ -138,14 +130,12 @@ public final class Deque<Element> {
         self.count &+= 1
     }
     
-    /// Removes and returns the node containing the first element in the queue.
+    /// Removes and returns the first element in the queue.
     ///
     /// On deque, the node is removed from the queue, along with the other nodes' links to it.
     ///
-    /// - Warning: This method is unsafe and *can* leak; you must call ``Node/clean()`` when access to ``Node/prev`` and ``Node/next`` is no longer needed, to ensure the proper functionality of ARC.
-    ///
     /// - Complexity: O(*1*)
-    public func unsafeRemoveFirst() -> Node? {
+    public func removeFirst() -> Element? {
         guard let first = self.front else { return nil }
         
         if self.back === first {
@@ -156,18 +146,19 @@ public final class Deque<Element> {
             self.front?.prev = nil
         }
         
+        first.prev = nil
+        first.next = nil
+        
         count &-= 1
-        return first
+        return first.content
     }
     
-    /// Removes and returns the node containing the last element in the queue.
+    /// Removes and returns the last element in the queue.
     ///
     /// On deque, the node is removed from the queue, along with the other nodes' links to it.
     ///
-    /// - Warning: This method is unsafe and *can* leak; you must call ``Node/clean()`` when access to ``Node/prev`` and ``Node/next`` is no longer needed, to ensure the proper functionality of ARC.
-    ///
     /// - Complexity: O(*1*)
-    public func unsafeRemoveLast() -> Node? {
+    public func removeLast() -> Element? {
         guard let back = self.back else { return nil }
         
         if self.front === back {
@@ -178,30 +169,11 @@ public final class Deque<Element> {
             self.back?.next = nil
         }
         
+        back.prev = nil
+        back.next = nil
+        
         count &-= 1
-        return back
-    }
-    
-    /// Removes and returns the first element in the queue.
-    ///
-    /// On deque, the node is removed from the queue, along with the other nodes' links to it.
-    ///
-    /// - Complexity: O(*1*)
-    public func removeFirst() -> Element? {
-        let first = self.unsafeRemoveFirst()
-        first?.clean()
-        return first?.content
-    }
-    
-    /// Removes and returns the last element in the queue.
-    ///
-    /// On deque, the node is removed from the queue, along with the other nodes' links to it.
-    ///
-    /// - Complexity: O(*1*)
-    public func removeLast() -> Element? {
-        let last = self.unsafeRemoveFirst()
-        last?.clean()
-        return last?.content
+        return back.content
     }
     
     /// Removes the node from the parent deque by linking its ``Node/prev`` and ``Node/next``.
@@ -272,6 +244,7 @@ extension Deque: CustomStringConvertible where Element: CustomStringConvertible 
 
 extension Deque: ExpressibleByArrayLiteral {
     
+    @inlinable
     public convenience init(arrayLiteral elements: Element...) {
         self.init(elements)
     }
@@ -284,6 +257,7 @@ extension Deque.Node: Equatable where Element: Equatable {
     /// Equitable implementation.
     ///
     /// The equitable implementation never checks for address, to check address, use `===` instead.
+    @inlinable
     public static func == (_ lhs: Deque.Node, _ rhs: Deque.Node) -> Bool {
         lhs.content == rhs.content
     }
@@ -293,8 +267,26 @@ extension Deque.Node: Equatable where Element: Equatable {
 
 extension Deque.Node: Hashable where Element: Hashable {
     
+    @inlinable
     public func hash(into hasher: inout Hasher) {
         hasher.combine(content)
+    }
+    
+}
+
+
+extension Array {
+    
+    /// Initialize an array with a deque.
+    ///
+    /// - Parameters:
+    ///   - deque: The source deque. Such deque is destroyed after initialization.
+    public init(_ deque: consuming Deque<Element>) {
+        self = []
+        self.reserveCapacity(deque.count)
+        while let next = deque.next() {
+            self.append(next)
+        }
     }
     
 }
