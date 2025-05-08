@@ -222,7 +222,7 @@ public extension Collection {
     /// Instead of throwing fatal error, this methods returns `nil` when `index` is out of bounds.
     @inlinable
     func element(at index: Index) -> Element? {
-        guard index >= self.startIndex && index < self.endIndex else { return nil }
+        guard index < self.endIndex, index >= self.startIndex else { return nil }
         return self[index]
     }
     

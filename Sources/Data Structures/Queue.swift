@@ -10,11 +10,11 @@
 /// First in, first out Queue.
 ///
 /// A queue operates considerably faster than an `Array` when both ``enqueue(_:)`` and ``dequeue()`` operations are required. If only `enqueue` is needed, using `Array.append` would outperform `enqueue` because `enqueue` involves individually allocating each node.
-public struct Queue<Element> {
+public final class Queue<Element> {
     
-    private var first: Node?
+    private var front: Node?
     
-    private var last: Node?
+    private var back: Node?
     
     /// The number of elements in the queue.
     ///
@@ -36,32 +36,40 @@ public struct Queue<Element> {
     ///
     /// - Complexity: O(*1*)
     public var isEmpty: Bool {
-        first == nil && last == nil
+        front == nil && back == nil
     }
     
     /// Crates an empty queue.
     public init() {
-        self.first = nil
-        self.last = nil
+        self.front = nil
+        self.back = nil
         self.count = 0
+    }
+    
+    public convenience init(_ sequence: some Sequence<Element>) {
+        self.init()
+        
+        for element in sequence {
+            self.enqueue(element)
+        }
     }
     
     /// Append an element to the last.
     ///
     /// - Complexity: O(*1*)
-    public mutating func enqueue(_ element: Element) {
+    public func enqueue(_ element: Element) {
         let node = Node(element)
         
-        if first == nil {
-            assert(last == nil)
+        if front == nil {
+            assert(back == nil)
             
-            self.first = node
-            self.last = node
+            self.front = node
+            self.back = node
         } else {
-            assert(last != nil)
+            assert(back != nil)
             
-            self.last!.next = node
-            self.last = node
+            self.back!.next = node
+            self.back = node
         }
         
         self.count &+= 1
@@ -70,14 +78,14 @@ public struct Queue<Element> {
     /// Removes and returns the first element in the queue.
     ///
     /// - Complexity: O(*1*)
-    public mutating func dequeue() -> Element? {
-        guard let first = self.first else { return nil }
+    public func dequeue() -> Element? {
+        guard let first = self.front else { return nil }
         
-        if self.last === first {
-            self.first = nil
-            self.last = nil
+        if self.back === first {
+            self.front = nil
+            self.back = nil
         } else {
-            self.first = self.first!.next
+            self.front = self.front!.next
         }
         
         count &-= 1
@@ -93,40 +101,37 @@ extension Queue: IteratorProtocol {
     ///
     /// - Complexity: O(*1*), alias to ``dequeue()``.
     @inlinable
-    public mutating func next() -> Element? {
+    public func next() -> Element? {
         self.dequeue()
     }
     
 }
 
-extension Queue: Sequence { }
-
-extension Queue: CustomStringConvertible {
+extension Queue: CustomStringConvertible where Element: CustomStringConvertible {
     
     /// The description to the queue.
     public var description: String {
-        var current = self.first
-        var elements: [String] = []
-        elements.reserveCapacity(self.count)
+        var current = self.front
+        var description = "["
         
         while let _current = current {
-            elements.append("\(_current.content)")
+            description.write(_current.content.description)
             current = _current.next
+            description.write(", ")
         }
         
-        return "[" + elements.joined(separator: ", ") + "]"
+        if description.count != 1 {
+            description.removeLast(2)
+        }
+        description += "]"
+        return description
     }
-    
 }
 
 extension Queue: ExpressibleByArrayLiteral {
     
-    public init(arrayLiteral elements: Element...) {
-        self.init()
-        
-        for element in elements {
-            self.enqueue(element)
-        }
+    public convenience init(arrayLiteral elements: Element...) {
+        self.init(elements)
     }
     
 }

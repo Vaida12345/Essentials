@@ -39,9 +39,10 @@ https://www.github.com/Vaida12345/Essentials
 
 ### Data Structures
 
-- ``Heap``
-- ``PriorityQueue``
 - ``Queue``
+- ``Deque``
+- ``PriorityQueue``
+- ``Heap``
 
 
 ### Auxiliary Structures
