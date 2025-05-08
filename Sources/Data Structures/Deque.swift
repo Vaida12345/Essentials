@@ -153,6 +153,17 @@ public final class Deque<Element> {
         return first.content
     }
     
+    /// Iterate through the deque without removing any of its elements.
+    @inlinable
+    public func forEach<E: Error>(_ block: (_ element: Element) throws(E) -> Void) throws(E) {
+        var current = front
+        
+        while let node = current {
+            try block(node.content)
+            current = node.next
+        }
+    }
+    
     /// Removes and returns the last element in the queue.
     ///
     /// On deque, the node is removed from the queue, along with the other nodes' links to it.
@@ -281,11 +292,15 @@ extension Array {
     ///
     /// - Parameters:
     ///   - deque: The source deque. Such deque is destroyed after initialization.
-    public init(_ deque: consuming Deque<Element>) {
+    public init(_ deque: Deque<Element>) {
         self = []
         self.reserveCapacity(deque.count)
-        while let next = deque.removeFirst() {
-            self.append(next)
+        
+        var current = deque.front
+        
+        while let node = current {
+            self.append(node.content)
+            current = node.next
         }
     }
     

@@ -54,6 +54,16 @@ public final class Queue<Element> {
         }
     }
     
+    /// Iterate through the deque without removing any of its elements.
+    public func forEach<E: Error>(_ block: (_ element: Element) throws(E) -> Void) throws(E) {
+        var current = front
+        
+        while let node = current {
+            try block(node.content)
+            current = node.next
+        }
+    }
+    
     /// Append an element to the last.
     ///
     /// - Complexity: O(*1*)
