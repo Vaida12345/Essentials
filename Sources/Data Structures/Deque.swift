@@ -284,7 +284,7 @@ extension Array {
     public init(_ deque: consuming Deque<Element>) {
         self = []
         self.reserveCapacity(deque.count)
-        while let next = deque.next() {
+        while let next = deque.removeFirst() {
             self.append(next)
         }
     }
