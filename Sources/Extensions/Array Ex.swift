@@ -217,6 +217,15 @@ public extension Collection {
         return self.dropLast(droppedCount)
     }
     
+    /// Subscript an element at the given `index` gracefully.
+    ///
+    /// Instead of throwing fatal error, this methods returns `nil` when `index` is out of bounds.
+    @inlinable
+    func element(at index: Index) -> Element? {
+        guard index >= self.startIndex && index < self.endIndex else { return nil }
+        return self[index]
+    }
+    
     /// Finds the repeated elements.
     ///
     /// > Example:
