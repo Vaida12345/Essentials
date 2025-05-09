@@ -37,13 +37,6 @@ https://www.github.com/Vaida12345/Essentials
 - ``AlertManager``
 - ``TimeoutError``
 
-### Data Structures
-
-- ``Queue``
-- ``Deque``
-- ``PriorityQueue``
-- ``Heap``
-
 
 ### Auxiliary Structures
 You do not usually interact with these structures directly
