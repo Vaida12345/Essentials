@@ -490,6 +490,7 @@ public extension Array {
     func contains(_ sequence: [Element]) -> Bool where Element: Equatable {
         guard !sequence.isEmpty else { return true }
         guard !self.isEmpty else { return false }
+        guard self.count >= sequence.count else { return false }
         guard sequence.count != 1 else { return self.contains(sequence.first!) }
         
         for elementIndex in 0..<self.count - sequence.count {
