@@ -63,9 +63,8 @@ public extension Bool {
     /// | `true` | `false` | `false` |
     /// | `false` | `true` | `true` |
     /// | `false` | `false` | `true` |
-    static func => (lhs: Bool, rhs: Bool) -> Bool {
-        if !lhs { return true }
-        return rhs
+    static func => (lhs: Bool, rhs: @autoclosure () throws -> Bool) rethrows -> Bool {
+        try !lhs || rhs()
     }
 }
     
