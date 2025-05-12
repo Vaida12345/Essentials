@@ -48,6 +48,29 @@ public extension BinaryInteger {
 
 }
 
+/// The implies operator.
+infix operator =>: LogicalConjunctionPrecedence
+
+public extension Bool {
+    
+    /// The logical *implies*.
+    ///
+    /// The result is only false when `lhs` is `true` and `rhs` is `false`.
+    ///
+    /// | lhs | rhs | result |
+    /// | --- | --- | ------ |
+    /// | `true` | `true` | `true` |
+    /// | `true` | `false` | `false` |
+    /// | `false` | `true` | `true` |
+    /// | `false` | `false` | `true` |
+    static func => (lhs: Bool, rhs: Bool) -> Bool {
+        if !lhs { return true }
+        return rhs
+    }
+}
+    
+
+
 extension DefaultStringInterpolation {
     
     /// Interpolates the given value’s textual representation into the string literal being created. It would only be shown when `isShown` is `true`.
@@ -83,27 +106,6 @@ extension DefaultStringInterpolation {
     @inline(__always)
     public mutating func appendInterpolation<F>(_ value: F.FormatInput, format: F) where F: FormatStyle {
         appendInterpolation(format.format(value))
-    }
-    
-}
-
-/// The implies operator.
-infix operator =>: LogicalConjunctionPrecedence
-
-public extension Bool {
-    
-    /// The logical *implies*.
-    ///
-    /// The result is only false when `lhs` is `true` and `rhs` is `false`.
-    ///
-    /// | lhs | rhs | result |
-    /// | --- | --- | ------ |
-    /// | `true` | `true` | `true` |
-    /// | `true` | `false` | `false` |
-    /// | `false` | `true` | `true` |
-    /// | `false` | `false` | `true` |
-    static func => (lhs: Bool, rhs: Bool) -> Bool {
-        return !lhs || rhs
     }
     
 }
