@@ -251,8 +251,7 @@ public extension String {
     /// - Precondition: The `newLength` is longer than the length of the current `String`.
     @inlinable
     func prepadding(toLength newLength: Int, withPad padCharacter: Character) -> String {
-        precondition(self.count <= newLength)
-        
+        guard self.count < newLength else { return self }
         return String(repeating: padCharacter, count: newLength - self.count) + self
     }
     
