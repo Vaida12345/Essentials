@@ -377,8 +377,14 @@ extension UnsafeMutablePointer {
     /// - Returns: The `memcpy()` function returns the original value of `destination`.
     @inline(__always)
     @discardableResult
-    public func copy(to destination: UnsafeMutablePointer<Pointee>, srcOffset: Int = 0, destOffset: Int = 0, count n: Int) -> UnsafeMutableRawPointer! {
+    public func copy(to destination: UnsafeMutableRawPointer, srcOffset: Int = 0, destOffset: Int = 0, count n: Int) -> UnsafeMutableRawPointer! {
         memcpy(destination + destOffset, self + srcOffset, n * MemoryLayout<Pointee>.stride)
+    }
+    
+    @inline(__always)
+    @discardableResult
+    public func copy(from source: UnsafeRawPointer, srcOffset: Int = 0, destOffset: Int = 0, count n: Int) -> UnsafeMutableRawPointer! {
+        memcpy(self + destOffset, source + srcOffset, n * MemoryLayout<Pointee>.stride)
     }
     
 }
@@ -398,8 +404,14 @@ extension UnsafeMutableBufferPointer {
     /// - Returns: The `memcpy()` function returns the original value of `destination`.
     @inline(__always)
     @discardableResult
-    public func copy(to destination: UnsafeMutablePointer<Element>, srcOffset: Int = 0, destOffset: Int = 0, count n: Int) -> UnsafeMutableRawPointer! {
+    public func copy(to destination: UnsafeMutableRawPointer, srcOffset: Int = 0, destOffset: Int = 0, count n: Int) -> UnsafeMutableRawPointer! {
         self.baseAddress!.copy(to: destination, srcOffset: srcOffset, destOffset: destOffset, count: n)
+    }
+    
+    @inline(__always)
+    @discardableResult
+    public func copy(from source: UnsafeRawPointer, srcOffset: Int = 0, destOffset: Int = 0, count n: Int) -> UnsafeMutableRawPointer! {
+        self.baseAddress!.copy(from: source, srcOffset: srcOffset, destOffset: destOffset, count: n)
     }
     
 }
