@@ -375,43 +375,16 @@ extension UnsafeMutablePointer {
     ///   - n: The number of elements to copy. The stride of `Element` is multiplied.
     ///
     /// - Returns: The `memcpy()` function returns the original value of `destination`.
-    @inline(__always)
+    @inlinable
     @discardableResult
-    public func copy(to destination: UnsafeMutableRawPointer, srcOffset: Int = 0, destOffset: Int = 0, count n: Int) -> UnsafeMutableRawPointer! {
-        memcpy(destination + destOffset, self + srcOffset, n * MemoryLayout<Pointee>.stride)
+    public func copy(to destination: UnsafeMutableRawPointer, count n: Int) -> UnsafeMutableRawPointer! {
+        memcpy(destination, self, n &* MemoryLayout<Pointee>.stride)
     }
     
-    @inline(__always)
+    @inlinable
     @discardableResult
-    public func copy(from source: UnsafeRawPointer, srcOffset: Int = 0, destOffset: Int = 0, count n: Int) -> UnsafeMutableRawPointer! {
-        memcpy(self + destOffset, source + srcOffset, n * MemoryLayout<Pointee>.stride)
-    }
-    
-}
-
-extension UnsafeMutableBufferPointer {
-    
-    /// Copy memory area
-    ///
-    /// The `memcpy()` function copies *n* bytes from memory area `self` to memory area `destination`.  If `destination` and `self` overlap, behavior is undefined. Applications in which `destination` and `self` might overlap should use `memmove(3)` instead.
-    ///
-    /// - Parameters:
-    ///   - destination: The buffer pointer to the destination address.
-    ///   - srcOffset: The offset of `self` base address. The value passed is `self.baseAddress! + srcOffset`.
-    ///   - destOffset: The offset of `destination` base address. The value passed is `destination.baseAddress! + destOffset`.
-    ///   - n: The number of elements to copy. The stride of `Element` is multiplied.
-    ///
-    /// - Returns: The `memcpy()` function returns the original value of `destination`.
-    @inline(__always)
-    @discardableResult
-    public func copy(to destination: UnsafeMutableRawPointer, srcOffset: Int = 0, destOffset: Int = 0, count n: Int) -> UnsafeMutableRawPointer! {
-        self.baseAddress!.copy(to: destination, srcOffset: srcOffset, destOffset: destOffset, count: n)
-    }
-    
-    @inline(__always)
-    @discardableResult
-    public func copy(from source: UnsafeRawPointer, srcOffset: Int = 0, destOffset: Int = 0, count n: Int) -> UnsafeMutableRawPointer! {
-        self.baseAddress!.copy(from: source, srcOffset: srcOffset, destOffset: destOffset, count: n)
+    public func copy(from source: UnsafeRawPointer, count n: Int) -> UnsafeMutableRawPointer! {
+        memcpy(self, source, n &* MemoryLayout<Pointee>.stride)
     }
     
 }
