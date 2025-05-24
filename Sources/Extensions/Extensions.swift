@@ -63,6 +63,7 @@ public extension Bool {
     /// | `true` | `false` | `false` |
     /// | `false` | `true` | `true` |
     /// | `false` | `false` | `true` |
+    @inlinable
     static func => (lhs: Bool, rhs: @autoclosure () throws -> Bool) rethrows -> Bool {
         try !lhs || rhs()
     }
@@ -215,6 +216,7 @@ extension FileHandle {
 @available(macOS 11, iOS 14, watchOS 7, tvOS 14, *)
 extension Logger {
     
+    @inlinable
     public init(subsystem: String, function: String = #function) {
         self.init(subsystem: subsystem, category: #function)
     }
@@ -225,6 +227,7 @@ extension Logger {
 extension OptionSet {
     
     /// The option where none is selected.
+    @inlinable
     public static var none: Self { [] }
     
 }
@@ -232,12 +235,11 @@ extension OptionSet {
 extension Optional {
     
     /// Returns `true` is `self == nil` or `predicate(self!)`.
+    @inlinable
     public func isNil(or predicate: (Wrapped) -> Bool) -> Bool {
         switch self {
-        case .none:
-            return true
-        case .some(let wrapped):
-            return predicate(wrapped)
+        case .none: true
+        case .some(let wrapped): predicate(wrapped)
         }
     }
     
@@ -309,6 +311,7 @@ public extension String {
     /// Print a tree hierarchy of tree.
     ///
     /// This is a variant of ``recursiveDescription(of:children:description:)``.
+    @inlinable
     static func recursiveDescription<T>(of target: T, children: (T) -> [T]?) -> String where T: CustomStringConvertible {
         self.recursiveDescription(of: target, children: children, description: \.description)
     }
@@ -319,6 +322,7 @@ public extension String {
 extension Unicode.UTF8 {
     
     /// Returns `nil` if it is not a start byte, otherwise returns the byte length of the character.
+    @inlinable
     public static func width(startsWith byte: Unicode.UTF8.CodeUnit) -> Int? {
         guard byte & 0b1100_0000 != 0b1000_0000 else { return nil } // lead, starts with 10
         
