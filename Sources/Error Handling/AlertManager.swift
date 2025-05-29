@@ -337,16 +337,22 @@ public func withErrorPresented<T>(_ body: () throws -> T) -> T? {
 /// - Parameters:
 ///   - title: The title for the error. This is recommended so the user would understand the implication of such error.
 ///   - body: The main body.
+///   - errorHandler: The handler called when the user clicks the default action.
 @discardableResult
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 public func withErrorPresented<T>(
     _ title: LocalizedStringResource,
-    body: @Sendable () async throws -> T
+    body: @Sendable () async throws -> T,
+    errorHandler: @escaping () -> Void = {}
 ) async -> T? {
     do {
         return try await body()
     } catch {
-        AlertManager(title, error: error).present()
+        AlertManager(title, error: error)
+            .appendingAction(title: "OK") {
+                errorHandler()
+            }
+            .present()
     }
     return nil
 }
@@ -360,12 +366,17 @@ public func withErrorPresented<T>(
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 public func withErrorPresented<T>(
     _ title: LocalizedStringResource,
-    body: () throws -> T
+    body: () throws -> T,
+    errorHandler: @escaping () -> Void = {}
 ) -> T? {
     do {
         return try body()
     } catch {
-        AlertManager(title, error: error).present()
+        AlertManager(title, error: error)
+            .appendingAction(title: "OK") {
+                errorHandler()
+            }
+            .present()
     }
     return nil
 }
