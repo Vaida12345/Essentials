@@ -175,7 +175,7 @@ public extension Encodable {
             
         case 2:
             let encoder = JSONEncoder()
-            if #available(macOS 10.15, *) {
+            if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *) {
                 encoder.outputFormatting = .withoutEscapingSlashes
             }
             return try encoder.encode(self)
