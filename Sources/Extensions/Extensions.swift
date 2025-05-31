@@ -68,7 +68,16 @@ public extension Bool {
         try !lhs || rhs()
     }
 }
+
+
+extension ClosedRange where Bound: AdditiveArithmetic {
     
+    /// The span of the range
+    public var span: Bound {
+        self.upperBound - self.lowerBound
+    }
+    
+}
 
 
 extension DefaultStringInterpolation {
