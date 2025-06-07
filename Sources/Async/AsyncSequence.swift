@@ -21,10 +21,14 @@ public struct AsyncSequenceContainer<Base>: AsyncSequence where Base: Sequence {
     
     public struct AsyncIterator: AsyncIteratorProtocol {
         
-        var iterator: Base.Iterator
+        private var iterator: Base.Iterator
         
         public mutating func next() async -> Base.Element? {
             iterator.next()
+        }
+        
+        fileprivate init(iterator: Base.Iterator) {
+            self.iterator = iterator
         }
         
         public typealias Element = Base.Element
@@ -80,6 +84,5 @@ extension AsyncSequence {
             return array
         }
     }
-    
     
 }

@@ -94,11 +94,10 @@ extension RandomAccessCollection where Index == Int {
     /// ```
     /// But more efficient.
     ///
-    ///
     /// - SeeAlso:
-    /// This is the does the same as ``mean(of:)``.
+    /// This is the does the same as ``average(of:)``.
     @inlinable
-    public func average<T, E>(of member: (Element) throws(E) -> T) throws(E) -> T? where E: Error, T: BinaryFloatingPoint {
+    public func mean<T, E>(of member: (Element) throws(E) -> T) throws(E) -> T? where E: Error, T: BinaryFloatingPoint {
         var i = self.startIndex
         var cumulative: T = 0
         while i < self.endIndex {
@@ -117,11 +116,13 @@ extension RandomAccessCollection where Index == Int {
     /// ```
     /// But more efficient.
     ///
+    ///
     /// - SeeAlso:
-    /// This is the does the same as ``average(of:)``.
+    /// This is the does the same as ``mean(of:)``.
     @inlinable
-    public func mean<T, E>(of member: (Element) throws(E) -> T) throws(E) -> T? where E: Error, T: BinaryFloatingPoint {
-        try self.average(of: member)
+    @available(*, deprecated, renamed: "mean")
+    public func average<T, E>(of member: (Element) throws(E) -> T) throws(E) -> T? where E: Error, T: BinaryFloatingPoint {
+        try mean(of: member)
     }
     
     /// An efficient forEach.
@@ -137,38 +138,61 @@ extension RandomAccessCollection where Index == Int {
 }
 
 
+extension Array {
+    
+    /// An efficient mutating forEach.
+    @inlinable
+    public mutating func mutatingForEach<E>(_ body: (_ index: Index, _ element: inout Element) throws(E) -> Void) throws(E) -> Void where E: Error {
+        var i = self.startIndex
+        while i < self.endIndex {
+            try body(i, &self[i])
+            i &+= 1
+        }
+    }
+    
+}
+
+
 extension RandomAccessCollection where Index == Int {
     
-    /// Custom grouping of `source`.
+    /// Contiguous grouping of `self`.
     ///
-    /// Example:
+    /// This method achieves grouping by iterating over each event, and identify the dividers.
+    ///
+    /// - term i: The index of current item.
+    /// - term element: The value of current item.
+    /// - term currentGroup: The elements that the current group contains.
+    /// - term returns: A bool determining whether a new group should be created dividing `element` and its predecessor.
+    ///
+    /// ---
+    /// ## Example
+    ///
+    /// To group the following into `[1, 2, 3], [1, 2], [1, 2, 3]`
+    ///
     /// ```swift
-    ///  Array.grouping(chords) { i, chord, currentGroup, newGroup in
-    ///    if let firstChord = currentGroup.first {
-    ///        if chord.min(of: \.onset)! - firstChord.max(of: \.onset)! < spec.duration {
-    ///            currentGroup.append(chord)
-    ///        } else {
-    ///            newGroup(&currentGroup)
-    ///            currentGroup = [chord]
-    ///        }
-    ///    } else {
-    ///        currentGroup = [chord]
-    ///    }
+    /// let array: [Int] = [1, 2, 3, 1, 2, 1, 2, 3]
+    /// ```
+    ///
+    /// You can use the following method that identifies the dividers.
+    /// ```swift
+    /// array.divided { i, element, currentGroup in
+    ///     !currentGroup.isEmpty && currentGroup.last! > element
     /// }
     /// ```
-    public func grouped<C>(
-        of type: C.Type = [Element].self,
-        update: (_ i: Int, _ element: Element, _ currentGroup: inout C, _ newGroup: (_ currentGroup: inout C) -> Void) -> Void
-    ) -> [C] where C: RandomAccessCollection & ExpressibleByArrayLiteral, C.Element == Element {
-        var groups: [C] = []
-        var currentGroup: C = []
+    public func divided(
+        by shouldCreateNewGroup: (_ i: Int, _ element: Element, _ currentGroup: [Element]) -> Bool
+    ) -> [[Element]] {
+        var groups: [[Element]] = []
+        var currentGroup: [Element] = []
         
         var i = self.startIndex
         while i < self.endIndex {
-            update(i, self[i], &currentGroup) { currentGroup in
+            let value = self[i]
+            if shouldCreateNewGroup(i, value, currentGroup) {
                 groups.append(currentGroup)
                 currentGroup = []
             }
+            currentGroup.append(value)
             
             i &+= 1
         }

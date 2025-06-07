@@ -82,7 +82,7 @@ public enum KeyChainManager {
         
         private let status: OSStatus
         
-        public var title: String {
+        public var title: String? {
             "Keychain error"
         }
         

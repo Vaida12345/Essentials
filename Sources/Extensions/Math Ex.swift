@@ -12,7 +12,7 @@ import Accelerate
 public extension Sequence where Element: AdditiveArithmetic {
     
     /// The sum of the `Collection`. If the array is empty, the return value is `0`.
-    @inline(__always)
+    @inlinable
     var sum: Element {
         self.reduce(into: Element.zero, { $0 += $1 })
     }
@@ -54,7 +54,7 @@ public extension Sequence where Element: SignedNumeric & Comparable {
 public extension Sequence where Element: BinaryFloatingPoint {
     
     /// The mean value of the `Collection`.
-    @inline(__always)
+    @inlinable
     @available(*, deprecated, renamed: "mean", message: "Use `mean` instead")
     func average() -> Element? {
         self.mean
@@ -65,7 +65,7 @@ public extension Sequence where Element: BinaryFloatingPoint {
     /// Even when the collection is empty, the value is also well defined, to be `Element.zero`.
     ///
     /// - Note: This implementation does not use `Accelerate`.
-    @inline(__always)
+    @inlinable
     var mean: Element? {
         var iterator = self.makeIterator()
         guard var sum = iterator.next() else { return nil }
@@ -88,14 +88,14 @@ public extension AccelerateBuffer where Element == Double {
     /// Even when the collection is empty, the value is also well defined, to be `Element.zero`.
     ///
     /// - Note: This implementation does not use `Accelerate`.
-    @inline(__always)
+    @inlinable
     var mean: Element? {
         guard count != 0 else { return nil }
         return vDSP.mean(self)
     }
     
     /// The sum of the `Collection`. If the array is empty, the return value is `0`.
-    @inline(__always)
+    @inlinable
     var sum: Element {
         return vDSP.sum(self)
     }
@@ -110,68 +110,16 @@ public extension AccelerateBuffer where Element == Float {
     /// Even when the collection is empty, the value is also well defined, to be `Element.zero`.
     ///
     /// - Note: This implementation does not use `Accelerate`.
-    @inline(__always)
+    @inlinable
     var mean: Element? {
         guard count != 0 else { return nil }
         return vDSP.mean(self)
     }
     
     /// The sum of the `Collection`. If the array is empty, the return value is `0`.
-    @inline(__always)
+    @inlinable
     var sum: Element {
         return vDSP.sum(self)
-    }
-    
-}
-
-
-public extension Array {
-    
-    /// Find the elements which adds to the `sum` in this `Array`.
-    ///
-    /// - Source: Modified from Alistair Moffat, December 2012, Figure 9.4 PPSAA.
-    ///
-    /// - Parameters:
-    ///   - sum: The target sum.
-    ///
-    /// - Returns: The elements which adds to `sum`; `nil` if not found.
-    ///
-    /// - Complexity: O(*n* log *n*), where *n* is the length of the sequence.
-    func findElements(to sum: Element) -> [Element]? where Element: AdditiveArithmetic {
-        
-        /// Supporting class for `findElements(to:)`.
-        ///
-        /// This also serves as an example for divide and conquer.
-        func findElements(to sum: Element, length: Int, result: FindElementsResult = FindElementsResult()) -> FindElementsResult {
-            var result = result
-            if sum == .zero {
-                result.success = true
-                return result
-            } else if length == 0 {
-                return result
-            } else {
-                let resulT = findElements(to: sum, length: length - 1, result: result)
-                if resulT.success {
-                    return resulT
-                } else {
-                    result.array.append(self[length - 1])
-                    return findElements(to: sum - self[length - 1], length: length - 1, result: result)
-                }
-            }
-        }
-        
-        let result = findElements(to: sum, length: self.count)
-        if result.success {
-            return result.array
-        } else {
-            return nil
-        }
-    }
-    
-    /// Supporting class for `findElements(to:)`.
-    private struct FindElementsResult {
-        var array: [Element] = []
-        var success: Bool = false
     }
     
 }

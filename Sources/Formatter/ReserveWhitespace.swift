@@ -8,16 +8,21 @@
 import Foundation
 
 
+/// A format style that reserves the given amount of space using whitespace.
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ReserveWhitespaceFormatStyle: FormatStyle {
     
-    let spaceCount: Int
+    private let spaceCount: Int
     
     public typealias FormatInput = String
     public typealias FormatOutput = String
     
     public func format(_ input: String) -> String {
-        return input.prepadding(toLength: spaceCount, withPad: " ")
+        input.prepadding(toLength: spaceCount, withPad: " ")
+    }
+    
+    fileprivate init(spaceCount: Int) {
+        self.spaceCount = spaceCount
     }
     
 }
@@ -27,8 +32,8 @@ public struct ReserveWhitespaceFormatStyle: FormatStyle {
 public extension FormatStyle where Self == ReserveWhitespaceFormatStyle {
     
     /// The format style that appends any necessary pre-paddings to ensure the space it takes is `count`.
-    func reserveWhitespace(count: Int) -> Self {
-        return ReserveWhitespaceFormatStyle(spaceCount: count)
+    static func reserveWhitespace(count: Int) -> ReserveWhitespaceFormatStyle {
+        ReserveWhitespaceFormatStyle(spaceCount: count)
     }
     
 }

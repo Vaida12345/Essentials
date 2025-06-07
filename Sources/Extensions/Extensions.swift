@@ -17,6 +17,8 @@ import OSLog
 public extension BinaryInteger {
     
     /// Calls a closure with a pointer to the object’s bytes.
+    ///
+    /// Please note that arm64 uses little-endian for the order of bytes.
     @inlinable
     func withUnsafeBufferPointer<Result>(_ body: (UnsafeBufferPointer<UInt8>) -> Result) -> Result {
         withUnsafePointer(to: self) { pointer in
@@ -28,6 +30,8 @@ public extension BinaryInteger {
     
     /// The raw data that made up the binary integer.
     ///
+    /// Please note that arm64 uses little-endian for the order of bytes.
+    ///
     /// - Tip: This method may not be efficient. When you want to access the raw pointer, use ``withUnsafeBufferPointer(_:)`` instead.
     @inlinable
     var data: Data {
@@ -38,7 +42,9 @@ public extension BinaryInteger {
     
     /// Creates a integer using the given data.
     ///
-    /// - Precondition: If `data` length is not equal to bit width, the result is undefined.
+    /// Please note that arm64 uses little-endian for the order of bytes.
+    ///
+    /// - Precondition: `data` length must equal to bit width, otherwise the result is undefined.
     @inlinable
     init(data: Data) {
         self = data.withUnsafeBytes { (tuple: UnsafeRawBufferPointer) in
@@ -70,16 +76,6 @@ public extension Bool {
 }
 
 
-extension ClosedRange where Bound: AdditiveArithmetic {
-    
-    /// The span of the range
-    public var span: Bound {
-        self.upperBound - self.lowerBound
-    }
-    
-}
-
-
 extension DefaultStringInterpolation {
     
     /// Interpolates the given value’s textual representation into the string literal being created. It would only be shown when `isShown` is `true`.
@@ -87,7 +83,7 @@ extension DefaultStringInterpolation {
     /// - Parameters:
     ///   - value: any value that should be represented.
     ///   - isShown: Whether the value should be shown.
-    @inline(__always)
+    @inlinable
     public mutating func appendInterpolation(_ value: Any, isShown: Bool) {
         if isShown {
             appendInterpolation(value)
@@ -99,7 +95,7 @@ extension DefaultStringInterpolation {
     /// - Parameters:
     ///   - value: any value that should be represented.
     ///   - map: the mapping applied when the `value` is non-`nil`.
-    @inline(__always)
+    @inlinable
     public mutating func appendInterpolation<T>(_ value: Optional<T>, map: (T) -> Any) {
         if let value {
             appendInterpolation(map(value))
@@ -112,7 +108,7 @@ extension DefaultStringInterpolation {
     ///   - value: The raw value.
     ///   - format: The formatter applied.
     @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-    @inline(__always)
+    @inlinable
     public mutating func appendInterpolation<F>(_ value: F.FormatInput, format: F) where F: FormatStyle {
         appendInterpolation(format.format(value))
     }
@@ -165,30 +161,10 @@ public extension Date {
     ///
     /// - SeeAlso: For date creation using other components, see `DateComponents`.
     @available(macOS 13, iOS 16, watchOS 9, *)
+    @inlinable
     init(timeZone: TimeZone = .gmt, year: Int, month: Int? = nil, day: Int? = nil, hour: Int? = nil, minute: Int? = nil, second: Int? = nil, nanosecond: Int? = nil) {
         let calendar = Calendar(identifier: .gregorian)
         self = calendar.date(from: DateComponents(calendar: calendar, timeZone: timeZone, year: year, month: month, day: day, hour: hour, minute: minute, second: second, nanosecond: nanosecond))!
-    }
-    
-    /// Creates the date using the following components.
-    ///
-    /// The default time zone is set to be `gmt`. Localizations are ignored.
-    ///
-    /// There is no such thing as *overflow* for the date components, for example, day 367 of year 2024 would indicate the first date of 2025.
-    ///
-    /// > Returns: The first match given the specifications
-    ///
-    /// > Example:
-    /// > Use this initializer to form a date using its components. The first match will be returned.
-    /// > ```swift
-    /// > Date(year: 2024, quater: 1) // 2024-01-01
-    /// > ```
-    ///
-    /// - SeeAlso: For date creation using other components, see `DateComponents`.
-    @available(macOS 13, iOS 16, watchOS 9, *)
-    init(timeZone: TimeZone = .gmt, year: Int, quater: Int) {
-        let calendar = Calendar(identifier: .gregorian)
-        self = calendar.date(from: DateComponents(calendar: calendar, year: year, quarter: quater))!
     }
     
 }
@@ -225,6 +201,7 @@ extension FileHandle {
 @available(macOS 11, iOS 14, watchOS 7, tvOS 14, *)
 extension Logger {
     
+    /// Creates a custom logger for logging to a specific subsystem and category of current function.
     @inlinable
     public init(subsystem: String, function: String = #function) {
         self.init(subsystem: subsystem, category: #function)
@@ -266,65 +243,6 @@ public extension String {
         return String(repeating: padCharacter, count: newLength - self.count) + self
     }
     
-    static private func printChild<T>(_ child: T, header: String, into target: inout String, isLast: Bool, children: (T) -> [T]?, description: (T) -> String) {
-        let childDescription = recursiveDescription(of: child, children: children, description: description)
-        let components = childDescription.components(separatedBy: "\n").filter({ !$0.isEmpty })
-        if let first = components.first {
-            target += "\(header)\(first)\n"
-        }
-        for line in components.dropFirst() {
-            target += "\(isLast ? " " : "│") \(line)\n"
-        }
-    }
-    
-    /// Print a tree hierarchy of tree.
-    ///
-    /// ```swift
-    ///let node = Node.node([
-    ///     .node([
-    ///         .leaf(1),
-    ///         .node([
-    ///             .leaf(2)
-    ///         ]),
-    ///     ]),
-    ///     .leaf(3)
-    /// ])
-    /// ```
-    /// ```swift
-    /// recursiveDescription(of: node, children: \.children, 
-    ///                      description: \.description)
-    /// ```
-    /// ```
-    /// ─Node
-    ///  ├─Node
-    ///  │ ├─1
-    ///  │ ╰─Node
-    ///  │   ╰─2
-    ///  ╰─3
-    /// ```
-    static func recursiveDescription<T>(of target: T, children: (T) -> [T]?, description: (T) -> String) -> String {
-        
-        var value = "─" + description(target) + "\n"
-        if let _children = children(target) {
-            for child in _children.dropLast() {
-                printChild(child, header: "├", into: &value, isLast: false, children: children, description: description)
-            }
-            if let last = _children.last {
-                printChild(last, header: "╰", into: &value, isLast: true, children: children, description: description)
-            }
-        }
-        return value
-        
-    }
-    
-    /// Print a tree hierarchy of tree.
-    ///
-    /// This is a variant of ``recursiveDescription(of:children:description:)``.
-    @inlinable
-    static func recursiveDescription<T>(of target: T, children: (T) -> [T]?) -> String where T: CustomStringConvertible {
-        self.recursiveDescription(of: target, children: children, description: \.description)
-    }
-    
 }
 
 
@@ -363,7 +281,7 @@ extension UUID {
     
     /// Creates the UUID from raw data.
     @inlinable
-    public init(data: Data) throws {
+    public init(data: Data) {
         assert(data.count == 16, "The data length is not 16 bytes.")
         
         let uuid = data.withUnsafeBytes { (pointer: UnsafeRawBufferPointer) in
@@ -383,20 +301,21 @@ extension UnsafeMutablePointer {
     ///
     /// - Parameters:
     ///   - destination: The buffer pointer to the destination address.
-    ///   - srcOffset: The offset of `self` base address. The value passed is `self.baseAddress! + srcOffset`.
-    ///   - destOffset: The offset of `destination` base address. The value passed is `destination.baseAddress! + destOffset`.
     ///   - n: The number of elements to copy. The stride of `Element` is multiplied.
-    ///
-    /// - Returns: The `memcpy()` function returns the original value of `destination`.
     @inlinable
-    @discardableResult
-    public func copy(to destination: UnsafeMutableRawPointer, count n: Int) -> UnsafeMutableRawPointer! {
+    public func copy(to destination: UnsafeMutableRawPointer, count n: Int) {
         memcpy(destination, self, n &* MemoryLayout<Pointee>.stride)
     }
     
+    /// Copy memory area
+    ///
+    /// The `memcpy()` function copies *n* bytes from memory area `destination` to memory area `self`.  If `destination` and `self` overlap, behavior is undefined. Applications in which `destination` and `self` might overlap should use `memmove(3)` instead.
+    ///
+    /// - Parameters:
+    ///   - source: The buffer pointer to the source address.
+    ///   - n: The number of elements to copy. The stride of `Element` is multiplied.
     @inlinable
-    @discardableResult
-    public func copy(from source: UnsafeRawPointer, count n: Int) -> UnsafeMutableRawPointer! {
+    public func copy(from source: UnsafeRawPointer, count n: Int) {
         memcpy(self, source, n &* MemoryLayout<Pointee>.stride)
     }
     
@@ -410,20 +329,21 @@ extension UnsafeMutableBufferPointer {
     ///
     /// - Parameters:
     ///   - destination: The buffer pointer to the destination address.
-    ///   - srcOffset: The offset of `self` base address. The value passed is `self.baseAddress! + srcOffset`.
-    ///   - destOffset: The offset of `destination` base address. The value passed is `destination.baseAddress! + destOffset`.
     ///   - n: The number of elements to copy. The stride of `Element` is multiplied.
-    ///
-    /// - Returns: The `memcpy()` function returns the original value of `destination`.
     @inlinable
-    @discardableResult
-    public func copy(to destination: UnsafeMutableRawPointer, count n: Int) -> UnsafeMutableRawPointer! {
+    public func copy(to destination: UnsafeMutableRawPointer, count n: Int) {
         self.baseAddress!.copy(to: destination, count: n)
     }
     
+    /// Copy memory area
+    ///
+    /// The `memcpy()` function copies *n* bytes from memory area `destination` to memory area `self`.  If `destination` and `self` overlap, behavior is undefined. Applications in which `destination` and `self` might overlap should use `memmove(3)` instead.
+    ///
+    /// - Parameters:
+    ///   - source: The buffer pointer to the source address.
+    ///   - n: The number of elements to copy. The stride of `Element` is multiplied.
     @inlinable
-    @discardableResult
-    public func copy(from source: UnsafeRawPointer, count n: Int) -> UnsafeMutableRawPointer! {
+    public func copy(from source: UnsafeRawPointer, count n: Int) {
         self.baseAddress!.copy(from: source, count: n)
     }
     

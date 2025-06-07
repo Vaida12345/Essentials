@@ -32,9 +32,13 @@ extension Task where Success == Never, Failure == Never {
     /// ### Error Type
     /// - ``TimeoutError``
     @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-    public static func withTimeLimit<T>(for duration: Duration, operation: @Sendable @escaping () async throws -> T) async throws -> T where T: Sendable {
+    public static func withTimeLimit<T>(
+        for duration: Duration,
+        priority: TaskPriority? = nil,
+        operation: @Sendable @escaping () async throws -> T
+    ) async throws -> T where T: Sendable {
         try await withThrowingTaskGroup(of: T.self) { taskGroup in
-            taskGroup.addTask(operation: operation)
+            taskGroup.addTask(priority: priority, operation: operation)
             taskGroup.addTask {
                 try await Task.sleep(for: duration)
                 throw TimeoutError(duration: duration)
@@ -78,11 +82,12 @@ public struct TimeoutError: GenericError {
         self.duration = duration
     }
     
-    
-    public var title: String {
+    @inlinable
+    public var title: String? {
         "Operation time out"
     }
     
+    @inlinable
     public var message: String {
         "The operation time out (\(self.duration.seconds, format: .timeInterval))"
     }

@@ -78,6 +78,7 @@ extension GenericError {
     /// A description suitable for generic audience.
     ///
     /// - SeeAlso: ``debugDescription`` for debug details.
+    @inlinable
     public var description: String {
         if let title {
             "\(title): \(message)"
@@ -87,6 +88,9 @@ extension GenericError {
     }
     
     /// A description with debug details attached.
+    ///
+    /// You can obtain the debug description using `String(reflecting:)`.
+    @inlinable
     public var debugDescription: String {
         if let details {
             self.description + "\n\(details)"
@@ -96,26 +100,31 @@ extension GenericError {
     }
     
     /// Default implementation.
+    @inlinable
     public var title: String? {
         nil
     }
     
     /// Default implementation.
+    @inlinable
     public var details: String? {
         nil
     }
     
     /// - Invariant: This is inherited from `GenericError.description`
+    @inlinable
     public var localizedDescription: String {
         description
     }
     
     /// - Invariant: This is inherited from ``GenericError/description``
+    @inlinable
     public var errorDescription: String? {
         description
     }
     
     /// - Invariant: This is inherited from ``GenericError/message``
+    @inlinable
     public var failureReason: String? {
         self.message
     }
@@ -126,6 +135,7 @@ extension GenericError {
 @available(macOS 11, iOS 14, watchOS 7, tvOS 14, *)
 extension OSLogInterpolation {
     
+    @inlinable
     mutating func appendInterpolation(_ error: @autoclosure @escaping () -> some GenericError) {
         self.appendInterpolation(error().debugDescription)
     }

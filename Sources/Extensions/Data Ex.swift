@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import CryptoKit
 import Compression
 
 
@@ -21,7 +20,7 @@ public extension Data {
     /// ```swift
     /// let value: UInt16 = 0b1000101
     ///
-    /// value // 16
+    /// value // 69
     /// value.data.binaryDigits // 0b01000101_00000000
     /// ```
     @inlinable
@@ -49,6 +48,15 @@ public extension Data {
     }
     
     /// Each two hexadecimal elements represents a `UInt8`.
+    ///
+    /// Please note that arm64 uses little-endian for the order of bytes.
+    ///
+    /// ```swift
+    /// let value: UInt16 = 0b1000101
+    ///
+    /// value // 69
+    /// value.data.hexString // 4500
+    /// ```
     @inlinable
     var hexString: String {
         self.map { String(format: "%02hhx", $0) }.joined()
@@ -77,6 +85,11 @@ public extension Data {
     }
     
 }
+
+
+#if canImport(CryptoKit)
+
+import CryptoKit
 
 
 @available(macOS 10.15, iOS 13, watchOS 6, *)
@@ -154,3 +167,4 @@ extension SymmetricKey {
     }
     
 }
+#endif

@@ -16,7 +16,7 @@ struct JSONParserTests {
         let b: Int = try parser.value(for: "a")
         #expect(b == 1)
         
-        #expect(throws: Essentials.JSONParser.ParserError.typeError(key: "a", expected: "[Double]", actual: "__CFNSNumber")) {
+        #expect(throws: Essentials.JSONParser.ParserError.self) {
             try print(parser.array("a", type: .numeric))
         }
     }

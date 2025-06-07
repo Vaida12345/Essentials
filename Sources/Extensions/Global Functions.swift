@@ -23,7 +23,7 @@ import Foundation
 /// - Remark: When `min` is greater than `max`, the return value is `min` when `x` \< `min`, `max` otherwise.
 ///
 /// - Complexity: O(1)
-@inline(__always)
+@inlinable
 public func clamp<T>(_ x: T, min: T? = nil, max: T? = nil) -> T where T: Comparable {
     if let min,
        x < min {
@@ -63,7 +63,7 @@ public func linearInterpolate<T>(_ x: T, in domain: ClosedRange<T> = 0...1, to r
 /// Redirects the standard output and captures the result.
 @inlinable
 @available(macOS 10.15, iOS 13, watchOS 6, *)
-public func withStandardOutputCaptured(_ body: () throws -> Void) throws -> FileHandle {
+public func withStandardOutputCaptured(_ body: () throws -> Void) rethrows -> FileHandle {
     // Create a pipe and redirect stdout
     let pipe = Pipe()
     let oldStdout = dup(STDOUT_FILENO)
@@ -85,7 +85,7 @@ public func withStandardOutputCaptured(_ body: () throws -> Void) throws -> File
 /// Redirects the standard output and captures the result.
 @inlinable
 @available(macOS 10.15, iOS 13, watchOS 6, *)
-public func withStandardOutputAsyncCaptured(_ body: () async throws -> Void) async throws -> FileHandle {
+public func withStandardOutputAsyncCaptured(_ body: () async throws -> Void) async rethrows -> FileHandle {
     // Create a pipe and redirect stdout
     let pipe = Pipe()
     let oldStdout = dup(STDOUT_FILENO)
@@ -97,7 +97,7 @@ public func withStandardOutputAsyncCaptured(_ body: () async throws -> Void) asy
     // Restore stdout
     dup2(oldStdout, STDOUT_FILENO)
     close(oldStdout)
-    try pipe.fileHandleForWriting.close()
+    try! pipe.fileHandleForWriting.close()
     
     return pipe.fileHandleForReading
 }

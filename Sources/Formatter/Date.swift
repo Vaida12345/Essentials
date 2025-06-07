@@ -25,6 +25,7 @@ extension FormatStyle where Self == Date.VerbatimFormatStyle {
     /// > ) // May 22
     /// > ```
     @available(macOS 13, iOS 16, watchOS 9, *)
+    @inlinable
     public static func date(_ format: Date.FormatString,
                             locale: Locale? = Locale(identifier: "en_us"),
                             timeZone: TimeZone = .gmt,

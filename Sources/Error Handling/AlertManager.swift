@@ -144,6 +144,7 @@ public struct AlertManager: LocalizableError {
     }
     
     /// Creates an alert manager with a given error.
+    @inlinable
     @available(*, unavailable, renamed: "init(_:error:)", message: "Please use `init(_:error:)` instead")
     public init(_ error: some Error) {
         fatalError()
@@ -338,6 +339,7 @@ public func withErrorPresented<T>(_ body: () throws -> T) -> T? {
 ///   - title: The title for the error. This is recommended so the user would understand the implication of such error.
 ///   - body: The main body.
 ///   - errorHandler: The handler called when the user clicks the default action.
+@inlinable
 @discardableResult
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 public func withErrorPresented<T>(
@@ -362,6 +364,7 @@ public func withErrorPresented<T>(
 /// - Parameters:
 ///   - title: The title for the error. This is recommended so the user would understand the implication of such error.
 ///   - body: The main body.
+@inlinable
 @discardableResult
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 public func withErrorPresented<T>(

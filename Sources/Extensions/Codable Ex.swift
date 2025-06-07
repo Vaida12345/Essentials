@@ -14,6 +14,7 @@ extension KeyedDecodingContainer {
     /// The returning type is inferred. You can make it explicit by calling the original `decode` method.
     ///
     /// - Returns: A value of the requested type, if present for the given key and convertible to the requested type.
+    @inlinable
     public func decode<T>(forKey key: KeyedDecodingContainer<K>.Key) throws -> T where T: Decodable {
         try self.decode(T.self, forKey: key)
     }
@@ -23,6 +24,7 @@ extension KeyedDecodingContainer {
     /// The returning type is inferred. You can make it explicit by calling the original `decode` method.
     ///
     /// - Returns: A decoded value of the requested type, or nil if the Decoder does not have an entry associated with the given key, or if the value is a null value.
+    @inlinable
     public func decodeIfPresent<T>(forKey key: KeyedDecodingContainer<K>.Key) throws -> T? where T: Decodable {
         try self.decodeIfPresent(T.self, forKey: key)
     }

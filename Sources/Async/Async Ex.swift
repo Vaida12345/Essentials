@@ -49,16 +49,10 @@ public extension AsyncSequence {
     ///   - reservingCapacity: The capacity reserved, if known without complexity.
     ///
     /// - Complexity: O(*n*), where *n*: length of the iterator.
+    @available(*, deprecated, renamed: "sequence")
     @inlinable
-    func allObjects(reservingCapacity: Int? = nil) async rethrows -> [Element] {
-        var result: [Element] = []
-        if let reservingCapacity { result.reserveCapacity(reservingCapacity) }
-        
-        for try await element in self {
-            result.append(element)
-        }
-        
-        return result
+    func allObjects(reservingCapacity: Int? = nil) async throws -> [Element] {
+        try await self.sequence
     }
     
     /// Returns the number of elements where the `predicate` is met.
@@ -99,31 +93,6 @@ public extension AsyncSequence {
         }
         
         return match
-    }
-    
-}
-
-
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public extension AsyncIteratorProtocol {
-    
-    /// Returns all the values by iterating over the iterator.
-    ///
-    /// - Parameters:
-    ///   - reservingCapacity: The capacity reserved, if known without complexity.
-    ///
-    /// - Complexity: O(*n*), where *n*: length of the iterator.
-    @available(*, deprecated, renamed: "sequence")
-    @inlinable
-    mutating func allObjects(reservingCapacity: Int? = nil) async rethrows -> [Element] {
-        var result: [Element] = []
-        if let reservingCapacity { result.reserveCapacity(reservingCapacity) }
-        
-        while let next = try await self.next() {
-            result.append(next)
-        }
-        
-        return result
     }
     
 }

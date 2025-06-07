@@ -28,18 +28,22 @@ public protocol LocalizableError: GenericError {
 @available(macOS 13, iOS 16, watchOS 9, *)
 extension LocalizableError {
     
+    @inlinable
     public var title: String? {
         titleResource?.localized()
     }
     
+    @inlinable
     public var titleResource: LocalizedStringResource? {
         nil
     }
     
+    @inlinable
     public func actions() -> [AlertAction] {
         []
     }
     
+    @inlinable
     public var message: String {
         messageResource.localized()
     }
@@ -50,6 +54,7 @@ extension LocalizableError {
 extension LocalizedStringResource {
     
     /// Creates the localized String.
+    @inlinable
     public func localized() -> String {
         var copy = self
         copy.locale = .current

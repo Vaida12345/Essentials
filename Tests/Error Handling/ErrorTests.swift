@@ -17,10 +17,10 @@ struct ErrorTests {
             throw TestError()
         } catch {
             #expect("\(error)" == "error!")
+            #expect(String(reflecting: error) == "error!\nsome detail")
         }
     }
     
-    @available(iOS 16, *)
     @Test func alertManager() async throws {
         do {
             throw TestError()
@@ -34,6 +34,10 @@ struct ErrorTests {
     struct TestError: GenericError {
         var message: String {
             "error!"
+        }
+        
+        var details: String? {
+            "some detail"
         }
     }
 }
