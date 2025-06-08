@@ -39,4 +39,17 @@ struct ExtensionTests {
         #expect(UUID(data: id.data) == id)
     }
     
+    @Test func realloc() async throws {
+        var buffer = UnsafeMutableBufferPointer<Int>.allocate(capacity: 10)
+        let _ = buffer.initialize(from: stride(from: 0, to: 10, by: 1))
+        defer { buffer.deallocate() }
+        
+        buffer.reallocate(capacity: 20)
+        
+        #expect(buffer.count == 20)
+        for i in 0..<10 {
+            #expect(buffer[i] == i)
+        }
+    }
+    
 }

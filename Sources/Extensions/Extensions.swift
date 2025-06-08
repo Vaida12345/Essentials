@@ -347,4 +347,19 @@ extension UnsafeMutableBufferPointer {
         self.baseAddress!.copy(from: source, count: n)
     }
     
+    /// Change the size of the allocation.
+    ///
+    /// If there is not enough room to enlarge the memory allocation, this method creates a new allocation, copies as much of the old data as will fit to the new allocation, frees the old allocation, and changes `self` to a pointer to the allocated memory.
+    ///
+    /// When you reallocate memory, always remember to deallocate once you’re finished.
+    ///
+    /// - Parameters:
+    ///   - capacity: The desired capacity, counted in instances of `Element`.
+    @inlinable
+    public mutating func reallocate(capacity: Int) {
+        let ptr = Foundation.realloc(UnsafeMutableRawPointer(self.baseAddress!), capacity * MemoryLayout<Element>.stride)
+        precondition(ptr != nil, "Failed to reallocate memory.")
+        self = UnsafeMutableBufferPointer(start: ptr!.assumingMemoryBound(to: Element.self), count: capacity)
+    }
+    
 }
