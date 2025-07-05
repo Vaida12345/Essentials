@@ -11,7 +11,7 @@ import Foundation
 
 /// The localizable error that aims to replace `LocalizedError` by enabling Xcode to generate string resources automatically.
 @available(macOS 13, iOS 16, watchOS 9, *)
-public protocol LocalizableError: GenericError {
+public protocol LocalizableError: GenericError, CustomLocalizedStringResourceConvertible {
     
     /// The error description, shown as the title in ``AlertManager``.
     var titleResource: LocalizedStringResource? { get }
@@ -46,6 +46,11 @@ extension LocalizableError {
     @inlinable
     public var message: String {
         messageResource.localized()
+    }
+    
+    @inlinable
+    public var localizedStringResource: LocalizedStringResource {
+        self.messageResource
     }
     
 }

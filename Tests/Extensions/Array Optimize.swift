@@ -7,6 +7,7 @@
 
 import Testing
 import Essentials
+import os
 
 
 @Suite
@@ -53,6 +54,19 @@ struct ArrayOptimize {
             !currentGroup.isEmpty && currentGroup.last! > element
         }
         #expect(grouped == [[1, 2, 3], [1, 2], [1, 2, 3]])
+    }
+    
+}
+
+
+struct ArrayOptimizeTrace {
+    
+    @Test func minIndex() async throws {
+        let signposter = OSSignposter(subsystem: "Array + Optimize", category: .pointsOfInterest)
+        let array = Array(1...1000_000_000)
+        let _ = signposter.withIntervalSignpost("minIndex") {
+            array.max(of: \.self)
+        }
     }
     
 }
