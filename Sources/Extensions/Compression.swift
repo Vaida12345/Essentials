@@ -23,12 +23,12 @@ public extension Data {
     /// - **Smaller `pageSize`** may be suitable for memory-constrained environments or when low latency is critical, but at the cost of compression efficiency.
     @inlinable
     func withCompressionStream(using algorithm: Compression.Algorithm = .lzfse, pageSize: Int = 65536, handler: @escaping (Data) -> Void) throws {
-        let outputFilter = try OutputFilter(.compress, using: algorithm) { data in
+        let outputFilter = try OutputFilter(.compress, using: algorithm, bufferCapacity: pageSize) { data in
             guard let data else { return }
             handler(data)
         }
         
-        var index = 0
+        var index = self.startIndex
         let bufferSize = self.count
         
         while true {
@@ -65,14 +65,24 @@ public extension Data {
     }
     
     /// Decompress the data using the given algorithm.
+    ///
+    /// - Parameters:
+    ///   - algorithm: The compression algorithm used. Use the default one for Apple platforms.
+    ///   - pageSize: The block size. See discussion for more information.
+    ///
+    /// - **Larger `pageSize`** (e.g., 64 KB) generally results in better compression ratios and more efficient processing due to reduced overhead and better utilization of the compression algorithm's capabilities.
+    /// - **Smaller `pageSize`** may be suitable for memory-constrained environments or when low latency is critical, but at the cost of compression efficiency.
+    ///
+    /// - Tip: Use ``Foundation/Data/makeDecompressionStream(using:pageSize:)`` for stream behavior.
     @inlinable
     func decompressed(using algorithm: Compression.Algorithm = .lzfse, pageSize: Int = 65536) throws -> Data {
         var decompressedData = Data()
+        decompressedData.reserveCapacity(self.count)
         
-        var index = 0
+        var index = self.startIndex
         let bufferSize = self.count
         
-        let inputFilter = try InputFilter(.decompress, using: algorithm) { (length: Int) -> Data? in
+        let inputFilter = try InputFilter(.decompress, using: algorithm, bufferCapacity: pageSize) { (length: Int) -> Data? in
             let rangeLength = Swift.min(length, bufferSize - index)
             let subdata = self.subdata(in: index ..< index + rangeLength)
             index += rangeLength
@@ -115,9 +125,9 @@ public extension Data {
             self.pageSize = pageSize
             
             let bufferSize = data.count
-            var index = 0
+            var index = data.startIndex
             
-            self.inputFilter = try InputFilter(.decompress, using: algorithm) { (length: Int) -> Data? in
+            self.inputFilter = try InputFilter(.decompress, using: algorithm, bufferCapacity: pageSize) { (length: Int) -> Data? in
                 let rangeLength = Swift.min(length, bufferSize - index)
                 let subdata = data.subdata(in: index ..< index + rangeLength)
                 index += rangeLength

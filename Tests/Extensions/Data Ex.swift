@@ -34,4 +34,9 @@ struct DataExTests {
         try #expect(data.encrypt(using: key).decrypt(using: key) == data)
     }
     
+    @Test func compression() async throws {
+        let source = "1234567890".data(using: .utf8)!
+        #expect(try source.compressed(using: .zlib).decompressed(using: .zlib) == source)
+    }
+    
 }
