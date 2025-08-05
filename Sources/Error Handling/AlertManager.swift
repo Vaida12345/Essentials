@@ -157,7 +157,11 @@ public struct AlertManager: LocalizableError {
         case .localized(let _title, let _message, let actions):
             let message: LocalizedStringResource
             if let _title {
-                message = "\(_title): \(_message)"
+                if !_message.localized().isEmpty {
+                    message = "\(_title): \(_message)"
+                } else {
+                    message = _title
+                }
             } else {
                 message = _message
             }
@@ -170,7 +174,11 @@ public struct AlertManager: LocalizableError {
         case .unlocalized(let _title, let _message, let actions):
             let message: String
             if let _title {
-                message = "\(_title): \(_message)"
+                if !_message.isEmpty {
+                    message = "\(_title): \(_message)"
+                } else {
+                    message = _title
+                }
             } else {
                 message = _message
             }
