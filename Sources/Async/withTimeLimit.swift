@@ -55,7 +55,7 @@ extension Task where Success == Never, Failure == Never {
 
 /// The operation has timed out.
 ///
-/// This error is thrown by ``_Concurrency/Task/withTimeLimit(for:operation:)``.
+/// This error is thrown by ``_Concurrency/Task/withTimeLimit(for:priority:operation:)``.
 ///
 /// In the following example, it would print "cancelled", and throw ``TimeoutError``, with ``duration`` of 3 sec.
 ///
@@ -74,7 +74,7 @@ public struct TimeoutError: GenericError {
     
     /// The duration for which the task has been executing.
     ///
-    /// This value is the same as the `duration` parameter for ``_Concurrency/Task/withTimeLimit(for:operation:)``.
+    /// This value is the same as the `duration` parameter for ``_Concurrency/Task/withTimeLimit(for:priority:operation:)``.
     public let duration: Duration
     
     

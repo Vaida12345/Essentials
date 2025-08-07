@@ -10,7 +10,7 @@ import Security
 
 
 /// The manager to interact with the KeyChain service, which offers a secure way to persist passwords and keys.
-@available(*, deprecated, renamed: "KeyChain", message: "Use KeyChain from ViewCollection instead.")
+@available(*, deprecated, renamed: "KeyChain", message: "Use `Keychain` from the `Keychain` package instead.")
 public enum KeyChainManager {
     
     /// Persist the given data to keyChain service.

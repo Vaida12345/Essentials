@@ -61,10 +61,10 @@ import ErrorManager
 ///
 /// ### Handlers
 ///
-/// - ``withErrorPresented(_:body:)-6t4zi``
-/// - ``withErrorPresented(_:body:)-2eqy9``
-/// - ``withErrorPresented(_:)-9tpp3``
-/// - ``withErrorPresented(_:)-6jpcn``
+/// - ``withErrorPresented(_:body:errorHandler:)-6tdp``
+/// - ``withErrorPresented(_:body:errorHandler:)-3mpqs``
+/// - ``withErrorPresented(_:)->_``
+/// - ``withErrorPresented(_:)->()``
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 public struct AlertManager: LocalizableError {
     
@@ -372,6 +372,7 @@ public func withErrorPresented<T>(
 /// - Parameters:
 ///   - title: The title for the error. This is recommended so the user would understand the implication of such error.
 ///   - body: The main body.
+///   - errorHandler: The handler called when the user clicks the default action.
 @inlinable
 @discardableResult
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
