@@ -20,12 +20,12 @@ import Foundation
 ///
 /// - Returns: A value clamped within the specified range.
 ///
-/// - Remark: When `min` is greater than `max`, the return value is `min` when `x` \< `min`, `max` otherwise.
-///
-/// - Complexity: O(1)
+/// - precondition: When `max` must be greater than `min`.
 @inlinable
 public func clamp<T>(_ x: T, min: T? = nil, max: T? = nil) -> T where T: Comparable {
-    if let min,
+    assert(max == nil || min == nil || max! >= min!, "max must be >= min")
+    
+    return if let min,
        x < min {
         min
     } else if let max,
