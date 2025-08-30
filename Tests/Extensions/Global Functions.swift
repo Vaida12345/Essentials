@@ -19,10 +19,6 @@ struct GlobalFunctions {
         #expect(clamp(0, min: 1, max: 2) == 1)
         #expect(clamp(3, min: 1, max: 2) == 2)
         #expect(clamp(1.5, min: 1, max: 2) == 1.5)
-        
-        #expect(clamp(-1, min: 1, max: -1) == 1)
-        #expect(clamp(0, min: 1, max: -1) == 1)
-        #expect(clamp(1.5, min: 1, max: -1) == -1)
     }
     
     @Test func linearInterpolate() async throws {

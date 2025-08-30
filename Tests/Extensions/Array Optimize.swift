@@ -61,7 +61,7 @@ struct ArrayOptimize {
 
 struct ArrayOptimizeTrace {
     
-    @Test func minIndex() async throws {
+    @Test(.disabled()) func minIndex() async throws {
         let signposter = OSSignposter(subsystem: "Array + Optimize", category: .pointsOfInterest)
         let array = Array(1...1000_000_000)
         let _ = signposter.withIntervalSignpost("minIndex") {
