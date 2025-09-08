@@ -84,5 +84,28 @@ extension AsyncSequence {
             return array
         }
     }
+}
+
+
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
+extension AsyncSequence {
     
+    /// Converts the AsyncSequence to an `Array`.
+    ///
+    /// This methods waits and collect the results of the async sequence.
+    ///
+    /// - returns: The returned `sequence` is in the same order as the input. The returned array is populated on return.
+    ///
+    /// - Complexity: O(*n*).
+    @inlinable
+    public consuming func sequence() async throws(Failure) -> Array<Element> {
+        var array: [Element] = []
+        var iterator = self.makeAsyncIterator()
+        
+        while let next = try await iterator.next(isolation: nil) {
+            array.append(next)
+        }
+        
+        return array
+    }
 }
