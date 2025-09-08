@@ -322,7 +322,7 @@ public struct AlertManager: LocalizableError {
 @available(*, deprecated, renamed: "withErrorPresented(_:body:)", message: "")
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 @inlinable
-public func withErrorPresented(_ body: @escaping @Sendable () async throws -> Void) async {
+public func withErrorPresented(_ body: () async throws -> Void) async {
     await withErrorPresented("") {
         try await body()
     }
@@ -352,7 +352,7 @@ public func withErrorPresented<T>(_ body: () throws -> T) -> T? {
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 public func withErrorPresented<T>(
     _ title: LocalizedStringResource,
-    body: @Sendable () async throws -> T,
+    body: () async throws -> T,
     errorHandler: @escaping () -> Void = {}
 ) async -> T? {
     do {
