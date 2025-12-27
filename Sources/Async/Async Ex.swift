@@ -39,7 +39,7 @@ public extension AsyncSequence {
     ///
     /// - Complexity: O(*n*), where *n* is the length of array.
     @inlinable
-    func allEqual<Proxy>(on property: (_ content: Element) async throws -> Proxy) async throws -> Bool where Proxy: Equatable {
+    func allEqual<Proxy>(_ property: (_ content: Element) async throws -> Proxy) async throws -> Bool where Proxy: Equatable {
         var iterator = self.makeAsyncIterator()
         guard let firstElement = try await iterator.next() else { return true }
         let firstProxy = try await property(firstElement)
@@ -59,7 +59,7 @@ public extension AsyncSequence {
     /// - Complexity: O(*n*), where *n* is the length of array.
     @inlinable
     func allEqual() async throws -> Bool where Element: Equatable {
-        try await self.allEqual(on: \.self)
+        try await self.allEqual(\.self)
     }
     
     /// Returns all the values by iterating over the iterator.

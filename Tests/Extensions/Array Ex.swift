@@ -16,11 +16,11 @@ struct SequenceTests {
     @Test
     func allEqual() {
         #expect(![1, 2, 3, 4].allEqual())
-        let allBitWidthEqual = [1, 2, 3, 4].allEqual(on: \.bitWidth)
+        let allBitWidthEqual = [1, 2, 3, 4].allEqual(\.bitWidth)
         #expect(allBitWidthEqual)
-        let notAllByteSwappedEqual = ![1, 2, 3, 4].allEqual(on: \.byteSwapped)
+        let notAllByteSwappedEqual = ![1, 2, 3, 4].allEqual(\.byteSwapped)
         #expect(notAllByteSwappedEqual)
-        #expect([1, 2, 3, 4].allEqual(on: { $0 > 0 }))
+        #expect([1, 2, 3, 4].allEqual({ $0 > 0 }))
         #expect([1, 1].allEqual())
         #expect([1].allEqual())
         #expect([Int]().allEqual())

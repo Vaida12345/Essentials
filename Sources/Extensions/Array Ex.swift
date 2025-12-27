@@ -55,7 +55,7 @@ public extension Sequence {
     ///
     /// - Complexity: O(*n*), where *n* is the length of array.
     @inlinable
-    func allEqual<Proxy>(on property: (_ content: Element) throws -> Proxy) rethrows -> Bool where Proxy: Equatable {
+    func allEqual<Proxy>(_ property: (_ content: Element) throws -> Proxy) rethrows -> Bool where Proxy: Equatable {
         var iterator = self.makeIterator()
         guard let firstElement = iterator.next() else { return true }
         let firstProxy = try property(firstElement)
@@ -75,7 +75,7 @@ public extension Sequence {
     /// - Complexity: O(*n*), where *n*: The length of the sequence.
     @inlinable
     func allEqual() -> Bool where Element: Equatable {
-        self.allEqual(on: \.self)
+        self.allEqual(\.self)
     }
     
     /// Returns a compact mapped sequence.
