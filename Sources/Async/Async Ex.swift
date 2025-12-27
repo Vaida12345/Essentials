@@ -33,6 +33,25 @@ public extension AsyncSequence {
         return true
     }
     
+    /// Returns a boolean value determining whether all the elements in the array are equal on the property.
+    ///
+    /// - Returns: The return value is `true` if the array is empty.
+    ///
+    /// - Complexity: O(*n*), where *n* is the length of array.
+    @inlinable
+    func allEqual<Proxy>(on property: (_ content: Element) async throws -> Proxy) async throws -> Bool where Proxy: Equatable {
+        var iterator = self.makeAsyncIterator()
+        guard let firstElement = try await iterator.next() else { return true }
+        let firstProxy = try await property(firstElement)
+        
+        while let nextElement = try await iterator.next() {
+            let nextProxy = try await property(nextElement)
+            guard nextProxy == firstProxy else { return false }
+        }
+        
+        return true
+    }
+    
     /// Returns a boolean value determining whether all the elements in the array are equal.
     ///
     /// - Returns: The return value is `true` if the array is empty.
@@ -40,7 +59,7 @@ public extension AsyncSequence {
     /// - Complexity: O(*n*), where *n* is the length of array.
     @inlinable
     func allEqual() async throws -> Bool where Element: Equatable {
-        try await self.allEqual(==)
+        try await self.allEqual(on: \.self)
     }
     
     /// Returns all the values by iterating over the iterator.

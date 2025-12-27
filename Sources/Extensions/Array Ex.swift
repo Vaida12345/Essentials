@@ -35,14 +35,34 @@ public extension Sequence {
     /// - Returns: The return value is `true` if the array is empty.
     ///
     /// - Complexity: O(*n*), where *n*: The length of the sequence.
+    ///
+    /// - SeeAlso: ``allEqual(on:)``
     @inlinable
     func allEqual(_ predicate: (_ lhs: Element, _ rhs: Element) throws -> Bool) rethrows -> Bool {
-        
         var iterator = self.makeIterator()
         guard let firstElement = iterator.next() else { return true }
         
         while let nextElement = iterator.next() {
             guard try predicate(firstElement, nextElement) else { return false }
+        }
+        
+        return true
+    }
+    
+    /// Returns a boolean value determining whether all the elements in the array are equal on the property.
+    ///
+    /// - Returns: The return value is `true` if the array is empty.
+    ///
+    /// - Complexity: O(*n*), where *n* is the length of array.
+    @inlinable
+    func allEqual<Proxy>(on property: (_ content: Element) throws -> Proxy) rethrows -> Bool where Proxy: Equatable {
+        var iterator = self.makeIterator()
+        guard let firstElement = iterator.next() else { return true }
+        let firstProxy = try property(firstElement)
+        
+        while let nextElement = iterator.next() {
+            let nextProxy = try property(nextElement)
+            guard nextProxy == firstProxy else { return false }
         }
         
         return true
@@ -55,7 +75,7 @@ public extension Sequence {
     /// - Complexity: O(*n*), where *n*: The length of the sequence.
     @inlinable
     func allEqual() -> Bool where Element: Equatable {
-        self.allEqual(==)
+        self.allEqual(on: \.self)
     }
     
     /// Returns a compact mapped sequence.
