@@ -201,3 +201,31 @@ extension RandomAccessCollection where Index == Int {
         return groups
     }
 }
+
+
+extension RandomAccessCollection where Index == Int, Element: Comparable {
+    
+    /// Performs binary search on `self`.
+    ///
+    /// - Precondition: `self` is sorted.
+    ///
+    /// - Complexity: O(log *n*), branchless.
+    public func binarySearch(for value: Element) -> Index? {
+        var length = self.count
+        var start = self.startIndex
+        
+        while length > 0 {
+            let remainder = length % 2
+            length /= 2
+            let middle = start &+ length
+            let middleValue = self[middle]
+            
+            if value > middleValue {
+                start = middle &+ remainder
+            }
+        }
+        
+        return start
+    }
+    
+}

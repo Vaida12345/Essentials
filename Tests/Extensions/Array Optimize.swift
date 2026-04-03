@@ -56,17 +56,12 @@ struct ArrayOptimize {
         #expect(grouped == [[1, 2, 3], [1, 2], [1, 2, 3]])
     }
     
-}
-
-
-struct ArrayOptimizeTrace {
-    
-    @Test(.disabled()) func minIndex() async throws {
-        let signposter = OSSignposter(subsystem: "Array + Optimize", category: .pointsOfInterest)
-        let array = Array(1...1000_000_000)
-        let _ = signposter.withIntervalSignpost("minIndex") {
-            array.max(of: \.self)
-        }
+    @Test func binarySearch() async throws {
+        var array: [Int] = [1, 2, 3]
+        #expect(array.binarySearch(for: 2) == 1)
+        
+        array = [1, 2, 3, 4]
+        #expect(array.binarySearch(for: 3) == 2)
     }
     
 }
