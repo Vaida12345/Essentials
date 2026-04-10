@@ -302,11 +302,19 @@ public struct AlertManager: LocalizableError {
             )
         } else {
             let error = error as NSError
-            return .unlocalized(
-                title: error.localizedDescription,
-                message: error.localizedFailureReason ?? error.localizedRecoverySuggestion ?? "",
-                actions: []
-            )
+            if error.localizedDescription.hasPrefix("The operation couldn’t be completed.") {
+                return .unlocalized(
+                    title: error.description,
+                    message: "",
+                    actions: []
+                )
+            } else {
+                return .unlocalized(
+                    title: error.localizedDescription,
+                    message: error.localizedFailureReason ?? error.localizedRecoverySuggestion ?? "",
+                    actions: []
+                )
+            }
         }
     }
     
