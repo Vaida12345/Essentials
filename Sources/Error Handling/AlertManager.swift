@@ -66,7 +66,7 @@ import ErrorManager
 /// - ``withErrorPresented(_:)->_``
 /// - ``withErrorPresented(_:)->()``
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-public struct AlertManager: LocalizableError {
+public struct AlertManager: LocalizableError, CustomStringConvertible {
     
     public let titleResource: LocalizedStringResource
     
@@ -75,6 +75,15 @@ public struct AlertManager: LocalizableError {
     nonisolated(unsafe)
     fileprivate var actions: [AlertAction]
     
+    /// A description suitable for generic audience.
+    @inlinable
+    public var description: String {
+        if let title {
+            "\(title): \(message)"
+        } else {
+            message
+        }
+    }
     
     fileprivate init(title: LocalizedStringResource, message: LocalizedStringResource, actions: [AlertAction]) {
         self.titleResource = title
