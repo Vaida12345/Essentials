@@ -78,7 +78,10 @@ public struct AlertManager: LocalizableError, CustomStringConvertible {
     /// A description suitable for generic audience.
     @inlinable
     public var description: String {
-        if let title {
+        let title = titleResource.localized()
+        let message = messageResource.localized()
+        
+        return if !title.isEmpty {
             "\(title): \(message)"
         } else {
             message
