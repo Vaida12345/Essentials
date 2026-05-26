@@ -37,9 +37,9 @@ public extension Data {
             let subdata = self.subdata(in: index ..< index + rangeLength)
             index += rangeLength
             
-            try outputFilter.write(subdata)
-            
             if (rangeLength == 0) { break }
+            
+            try outputFilter.write(subdata)
         }
     }
     

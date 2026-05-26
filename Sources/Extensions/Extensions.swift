@@ -263,7 +263,7 @@ extension Unicode.UTF8 {
             return 4
         }
         
-        fatalError()
+        return nil
     }
     
 }

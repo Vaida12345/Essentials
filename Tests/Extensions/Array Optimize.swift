@@ -59,9 +59,12 @@ struct ArrayOptimize {
     @Test func binarySearch() async throws {
         var array: [Int] = [1, 2, 3]
         #expect(array.binarySearch(for: 2) == 1)
+        #expect(array.binarySearch(for: 10) == nil)
         
         array = [1, 2, 3, 4]
         #expect(array.binarySearch(for: 3) == 2)
+        
+        #expect([].binarySearch(for: 3) == nil)
     }
     
 }

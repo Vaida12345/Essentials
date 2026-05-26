@@ -91,13 +91,15 @@ public func withStandardOutputAsyncCaptured(_ body: () async throws -> Void) asy
     let oldStdout = dup(STDOUT_FILENO)
     dup2(pipe.fileHandleForWriting.fileDescriptor, STDOUT_FILENO)
     
+    defer {
+        // Restore stdout
+        dup2(oldStdout, STDOUT_FILENO)
+        close(oldStdout)
+        try! pipe.fileHandleForWriting.close()
+    }
+    
     // Print something (this will be captured)
     try await body()
-    
-    // Restore stdout
-    dup2(oldStdout, STDOUT_FILENO)
-    close(oldStdout)
-    try! pipe.fileHandleForWriting.close()
     
     return pipe.fileHandleForReading
 }

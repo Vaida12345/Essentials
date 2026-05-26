@@ -211,6 +211,7 @@ extension RandomAccessCollection where Index == Int, Element: Comparable {
     ///
     /// - Complexity: O(log *n*), branchless.
     public func binarySearch(for value: Element) -> Index? {
+        let endIndex = self.endIndex
         var length = self.count
         var start = self.startIndex
         
@@ -225,7 +226,7 @@ extension RandomAccessCollection where Index == Int, Element: Comparable {
             }
         }
         
-        return start
+        return (start < endIndex && self[start] == value) ? start : nil
     }
     
 }

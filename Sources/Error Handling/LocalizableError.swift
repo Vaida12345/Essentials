@@ -61,9 +61,7 @@ extension LocalizedStringResource {
     /// Creates the localized String.
     @inlinable
     public func localized() -> String {
-        var copy = self
-        copy.locale = .current
-        return String(localized: copy)
+        String(localized: self)
     }
     
 }

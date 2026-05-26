@@ -358,18 +358,13 @@ public extension Array {
         let count = self.reduce(0) { $0 + $1.count }
         
         return Array<Element.Element>.init(unsafeUninitializedCapacity: count) { buffer, initializedCount in
-            let base = buffer.baseAddress!
-            var move = 0
-            
             for value in self {
                 let count = value.count
                 for i in 0..<count {
-                    move &+= 1
-                    (base + move).initialize(to: value[i])
+                    buffer.initializeElement(at: initializedCount, to: value[i])
+                    initializedCount &+= 1
                 }
             }
-            
-            initializedCount = count
         }
     }
     
