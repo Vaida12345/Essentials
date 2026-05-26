@@ -362,4 +362,21 @@ extension UnsafeMutableBufferPointer {
         self = UnsafeMutableBufferPointer(start: ptr!.assumingMemoryBound(to: Element.self), count: capacity)
     }
     
+    /// Returns a buffer pointer advanced by the given offset.
+    ///
+    /// The returned buffer starts at `lhs.baseAddress + rhs` and contains the
+    /// remaining `lhs.count - rhs` elements. Passing `lhs.count` returns an
+    /// empty buffer positioned one past the end of `lhs`.
+    ///
+    /// - Parameters:
+    ///   - lhs: The buffer pointer to advance.
+    ///   - rhs: The number of elements to advance from `lhs`.
+    /// - Returns: A buffer pointer covering the remaining elements after `rhs`.
+    ///
+    /// - Precondition: `rhs` must be in the range `0...lhs.count`.
+    @inlinable
+    public static func + (lhs: UnsafeMutableBufferPointer, rhs: Int) -> UnsafeMutableBufferPointer {
+        return UnsafeMutableBufferPointer(start: lhs.baseAddress! + rhs, count: lhs.count - rhs)
+    }
+    
 }
