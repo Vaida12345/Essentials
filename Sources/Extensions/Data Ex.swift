@@ -26,8 +26,6 @@ public extension Data {
     @inlinable
     var binaryDigits: String {
         self.withUnsafeBytes { buffer in
-            let buffer = buffer.bindMemory(to: UInt8.self)
-            
             var results: String = "0b"
             results.reserveCapacity(self.count + buffer.count + 1 + 2)
             

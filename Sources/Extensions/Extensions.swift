@@ -47,9 +47,7 @@ public extension BinaryInteger {
     /// - Precondition: `data` length must equal to bit width, otherwise the result is undefined.
     @inlinable
     init(data: Data) {
-        self = data.withUnsafeBytes { (tuple: UnsafeRawBufferPointer) in
-            tuple.bindMemory(to: Self.self).baseAddress!.pointee
-        }
+        self = data.withUnsafeBytes({ $0.load(as: Self.self) })
     }
 
 }
@@ -293,7 +291,7 @@ extension UUID {
 }
 
 
-extension UnsafeMutablePointer {
+extension UnsafeMutablePointer where Pointee: BitwiseCopyable {
     
     /// Copy memory area
     ///
@@ -331,7 +329,7 @@ extension UnsafeMutableBufferPointer {
     ///   - destination: The buffer pointer to the destination address.
     ///   - n: The number of elements to copy. The stride of `Element` is multiplied.
     @inlinable
-    public func copy(to destination: UnsafeMutableRawPointer, count n: Int) {
+    public func copy(to destination: UnsafeMutableRawPointer, count n: Int) where Element: BitwiseCopyable {
         self.baseAddress!.copy(to: destination, count: n)
     }
     
@@ -343,7 +341,7 @@ extension UnsafeMutableBufferPointer {
     ///   - source: The buffer pointer to the source address.
     ///   - n: The number of elements to copy. The stride of `Element` is multiplied.
     @inlinable
-    public func copy(from source: UnsafeRawPointer, count n: Int) {
+    public func copy(from source: UnsafeRawPointer, count n: Int) where Element: BitwiseCopyable {
         self.baseAddress!.copy(from: source, count: n)
     }
     
@@ -356,7 +354,7 @@ extension UnsafeMutableBufferPointer {
     /// - Parameters:
     ///   - capacity: The desired capacity, counted in instances of `Element`.
     @inlinable
-    public mutating func reallocate(capacity: Int) {
+    public mutating func reallocate(capacity: Int) where Element: BitwiseCopyable {
         let ptr = Foundation.realloc(UnsafeMutableRawPointer(self.baseAddress!), capacity * MemoryLayout<Element>.stride)
         precondition(ptr != nil, "Failed to reallocate memory.")
         self = UnsafeMutableBufferPointer(start: ptr!.assumingMemoryBound(to: Element.self), count: capacity)
