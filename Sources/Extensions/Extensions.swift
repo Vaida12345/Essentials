@@ -200,6 +200,7 @@ extension FileHandle {
 extension Logger {
     
     /// Creates a custom logger for logging to a specific subsystem and category of current function.
+    @available(*, deprecated)
     @inlinable
     public init(subsystem: String, function: String = #function) {
         self.init(subsystem: subsystem, category: #function)
