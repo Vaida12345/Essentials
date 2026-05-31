@@ -52,4 +52,24 @@ struct ExtensionTests {
         }
     }
     
+    @Test func optional() async throws {
+        let optionalTrue: Bool? = true
+        let optionalFalse: Bool? = false
+        let optionalNone: Bool? = nil
+        
+        #expect(optionalTrue.isNil(or: { $0 == true }) == true)
+        #expect(optionalTrue.isNil(or: { $0 == false }) == false)
+        #expect(optionalFalse.isNil(or: { $0 == true }) == false)
+        #expect(optionalFalse.isNil(or: { $0 == false }) == true)
+        #expect(optionalNone.isNil(or: { $0 == true }) == true)
+        #expect(optionalNone.isNil(or: { $0 == false }) == true)
+        
+        #expect(optionalTrue.isNoneNil(and: { $0 == true }) == true)
+        #expect(optionalTrue.isNoneNil(and: { $0 == false }) == false)
+        #expect(optionalFalse.isNoneNil(and: { $0 == true }) == false)
+        #expect(optionalFalse.isNoneNil(and: { $0 == false }) == true)
+        #expect(optionalNone.isNoneNil(and: { $0 == true }) == false)
+        #expect(optionalNone.isNoneNil(and: { $0 == false }) == false)
+    }
+    
 }

@@ -228,6 +228,15 @@ extension Optional {
         }
     }
     
+    /// Returns `true` is `self != nil` and `predicate(self!)`.
+    @inlinable
+    public func isNoneNil(and predicate: (Wrapped) -> Bool) -> Bool {
+        switch self {
+        case .none: false
+        case .some(let wrapped): predicate(wrapped)
+        }
+    }
+    
 }
 
 
