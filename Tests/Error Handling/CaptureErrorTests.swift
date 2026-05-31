@@ -50,4 +50,14 @@ struct CaptureErrorTests {
         }
     }
     
+    @Test nonisolated func childInheritParentActor() {
+        Task { @MainActor in
+            MainActor.assertIsolated("")
+            await withErrorPresented("123") {
+                await Task.yield()
+                MainActor.assertIsolated("")
+            }
+        }
+    }
+    
 }

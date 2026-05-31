@@ -368,7 +368,9 @@ public func withErrorPresented<T>(_ body: () throws -> T) -> T? {
 ///   - body: The main body.
 ///   - errorHandler: The handler called when the user clicks the default action.
 ///
-/// - Note: To inherit the actor of the caller, you need to attach the `nonisolated(nonsending)` attribute. See [Swift evolution](https://github.com/swiftlang/swift-evolution/blob/main/proposals/0461-async-function-isolation.md#nonisolatednonsending-functions).
+/// > Note:
+/// > To inherit the actor of the caller, you need to attach the `nonisolated(nonsending)` attribute if you pass a function. See [Swift evolution](https://github.com/swiftlang/swift-evolution/blob/main/proposals/0461-async-function-isolation.md#nonisolatednonsending-functions).
+/// > Closures inherit caller actor by default.
 @inlinable
 @discardableResult
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)

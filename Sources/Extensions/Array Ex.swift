@@ -172,12 +172,38 @@ public extension Sequence {
     /// - Returns: The array without repeated elements.
     ///
     /// - Complexity: O(*n*), where *n* is the length of this sequence.
+    ///
+    /// - Note: It is expected that two duplicated elements are identical, so that which one returned does not matter. Nevertheless, the first unique item is recorded.
     @inlinable
     func unique() -> Array<Element> where Element: Hashable {
         var container: Set<Element> = []
         var result = [] as [Element]
         self.forEach { element in
             guard container.insert(element).inserted else { return }
+            result.append(element)
+        }
+        return result
+    }
+    
+    /// Removes the repeated elements of an array, leaving only the entries different from each other.
+    ///
+    /// > Example:
+    /// >
+    /// > ```swift
+    /// > [1, 2, 3, 1].unique(by: \.self) // [1, 2, 3]
+    /// > ```
+    ///
+    /// - Returns: The array without repeated elements.
+    ///
+    /// - Complexity: O(*n*), where *n* is the length of this sequence.
+    ///
+    /// - Note: It is expected that two duplicated elements, indicated by `keyPath`, are identical, so that which one returned does not matter. Nevertheless, the first unique item is recorded.
+    @inlinable
+    func unique<T>(by keyPath: KeyPath<Element, T>) -> Array<Element> where T: Hashable {
+        var container: Set<T> = []
+        var result = [] as [Element]
+        self.forEach { element in
+            guard container.insert(element[keyPath: keyPath]).inserted else { return }
             result.append(element)
         }
         return result

@@ -52,6 +52,15 @@ struct SequenceTests {
         #expect([1, 2, 3, 1].unique() == [1, 2, 3])
     }
     
+    @Test
+    func uniqueBy() {
+        #expect([1, 2, 3, 1].unique(by: \.trailingZeroBitCount) == [1, 2])
+        // 0b001
+        // 0b010
+        // 0b011
+        // 0b100
+    }
+    
 }
 
 
