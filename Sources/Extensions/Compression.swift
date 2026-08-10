@@ -19,8 +19,18 @@ public extension Data {
     ///   - pageSize: The block size. See discussion for more information.
     ///   - handler: The handler for partial data.
     ///
+    /// ## Page Size
+    ///
     /// - **Larger `pageSize`** (e.g., 64 KB) generally results in better compression ratios and more efficient processing due to reduced overhead and better utilization of the compression algorithm's capabilities.
     /// - **Smaller `pageSize`** may be suitable for memory-constrained environments or when low latency is critical, but at the cost of compression efficiency.
+    ///
+    /// ## Algorithm
+    ///
+    /// Choose an algorithm according to the following guidelines:
+    ///- If speed and compression ratio are important, use `lzmesh`.
+    ///- If you require interoperability with non-Apple devices, use `zlib`.
+    ///- If speed is critical, and you’re willing to sacrifice compression ratio to achieve it, use `lz4`.
+    ///- If compression ratio is critical, and you can sacrifice speed to achieve it, use `lzraven`. Note that `lzraven` is an order of magnitude slower for both compression and decompression than other choices.
     @inlinable
     func withCompressionStream(using algorithm: Compression.Algorithm = .lzfse, pageSize: Int = 65536, handler: @escaping (Data) -> Void) throws {
         let outputFilter = try OutputFilter(.compress, using: algorithm, bufferCapacity: pageSize) { data in
@@ -49,8 +59,18 @@ public extension Data {
     ///   - algorithm: The compression algorithm used. Use the default one for Apple platforms.
     ///   - pageSize: The block size. See discussion for more information.
     ///
+    /// ## Page Size
+    ///
     /// - **Larger `pageSize`** (e.g., 64 KB) generally results in better compression ratios and more efficient processing due to reduced overhead and better utilization of the compression algorithm's capabilities.
     /// - **Smaller `pageSize`** may be suitable for memory-constrained environments or when low latency is critical, but at the cost of compression efficiency.
+    ///
+    /// ## Algorithm
+    ///
+    /// Choose an algorithm according to the following guidelines:
+    ///- If speed and compression ratio are important, use `lzmesh`.
+    ///- If you require interoperability with non-Apple devices, use `zlib`.
+    ///- If speed is critical, and you’re willing to sacrifice compression ratio to achieve it, use `lz4`.
+    ///- If compression ratio is critical, and you can sacrifice speed to achieve it, use `lzraven`. Note that `lzraven` is an order of magnitude slower for both compression and decompression than other choices.
     ///
     /// - Tip: Use ``Foundation/Data/withCompressionStream(using:pageSize:handler:)`` for stream behavior.
     @inlinable
@@ -70,8 +90,18 @@ public extension Data {
     ///   - algorithm: The compression algorithm used. Use the default one for Apple platforms.
     ///   - pageSize: The block size. See discussion for more information.
     ///
+    /// ## Page Size
+    ///
     /// - **Larger `pageSize`** (e.g., 64 KB) generally results in better compression ratios and more efficient processing due to reduced overhead and better utilization of the compression algorithm's capabilities.
     /// - **Smaller `pageSize`** may be suitable for memory-constrained environments or when low latency is critical, but at the cost of compression efficiency.
+    ///
+    /// ## Algorithm
+    ///
+    /// Choose an algorithm according to the following guidelines:
+    ///- If speed and compression ratio are important, use `lzmesh`.
+    ///- If you require interoperability with non-Apple devices, use `zlib`.
+    ///- If speed is critical, and you’re willing to sacrifice compression ratio to achieve it, use `lz4`.
+    ///- If compression ratio is critical, and you can sacrifice speed to achieve it, use `lzraven`. Note that `lzraven` is an order of magnitude slower for both compression and decompression than other choices.
     ///
     /// - Tip: Use ``Foundation/Data/makeDecompressionStream(using:pageSize:)`` for stream behavior.
     @inlinable
