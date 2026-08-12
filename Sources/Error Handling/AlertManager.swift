@@ -230,33 +230,7 @@ public struct AlertManager: LocalizableError, CustomStringConvertible {
             
             alert.runModal()
 #elseif canImport(UIKit) && !os(watchOS)
-            let controller = UIAlertController(title: self.titleResource.localized(), message: self.messageResource.localized(), preferredStyle: .alert)
-            for action in actions {
-                let title = action.title.localized()
-                let style =
-                if action.title.key == "Cancel" {
-                    UIAlertAction.Style.cancel
-                } else {
-                    action.isDestructive ? UIAlertAction.Style.destructive : .default
-                }
-                let alertAction = UIAlertAction(title: title, style: style, handler: { _ in action.handler() })
-                controller.addAction(alertAction)
-            }
-            
-            if controller.actions.isEmpty {
-                // set default action
-                controller.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
-            }
-            
-            controller.preferredAction = controller.actions.first
-            let rootController = UIApplication
-                .shared
-                .connectedScenes
-                .compactMap { ($0 as? UIWindowScene)?.keyWindow }
-                .last?
-                .rootViewController
-            
-            (rootController?.presentedViewController ?? rootController)?.present(controller, animated: true, completion: nil)
+            AlertPresentationCoordinator.shared.enqueue(self)
 #elseif os(watchOS)
             
             guard let viewController = (WKApplication.shared().visibleInterfaceController ?? WKApplication.shared().rootInterfaceController) else { return }
@@ -336,6 +310,129 @@ public struct AlertManager: LocalizableError, CustomStringConvertible {
     }
     
 }
+
+#if canImport(UIKit) && !os(watchOS)
+/// Serializes UIKit alert presentation so alerts do not race SwiftUI presentation transitions.
+@available(iOS 16.0, tvOS 16.0, *)
+@MainActor
+private final class AlertPresentationCoordinator {
+    
+    /// The shared coordinator for all UIKit alert requests in the process.
+    static let shared = AlertPresentationCoordinator()
+    
+    private var pendingAlerts: [AlertManager] = []
+    private var isPresenting = false
+    private var isRetryScheduled = false
+    
+    /// Adds an alert to the FIFO queue and presents it when UIKit has a stable presenter.
+    func enqueue(_ alert: AlertManager) {
+        pendingAlerts.append(alert)
+        attemptPresentation()
+    }
+    
+    /// Presents the next alert only when no other alert or view-controller transition is active.
+    private func attemptPresentation() {
+        guard !isPresenting, let alert = pendingAlerts.first else { return }
+        guard let presenter = eligiblePresenter() else {
+            scheduleRetry()
+            return
+        }
+        
+        isPresenting = true
+        pendingAlerts.removeFirst()
+        
+        let controller = UIAlertController(
+            title: alert.titleResource.localized(),
+            message: alert.messageResource.localized(),
+            preferredStyle: .alert
+        )
+        
+        for action in alert.actions {
+            let style: UIAlertAction.Style = action.title.key == "Cancel"
+            ? .cancel
+            : (action.isDestructive ? .destructive : .default)
+            controller.addAction(UIAlertAction(title: action.title.localized(), style: style) { [weak self] _ in
+                self?.finishPresentation()
+                action.handler()
+            })
+        }
+        
+        if controller.actions.isEmpty {
+            controller.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default) { [weak self] _ in
+                self?.finishPresentation()
+            })
+        }
+        
+        controller.preferredAction = controller.actions.first
+        presenter.present(controller, animated: true)
+    }
+    
+    /// Marks the current alert as dismissing and retries once UIKit finishes its dismissal transition.
+    private func finishPresentation() {
+        isPresenting = false
+        scheduleRetry()
+    }
+    
+    /// Delays another presentation attempt, coalescing repeated requests while a transition is active.
+    private func scheduleRetry() {
+        guard !isRetryScheduled else { return }
+        
+        isRetryScheduled = true
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            guard let self else { return }
+            
+            isRetryScheduled = false
+            attemptPresentation()
+        }
+    }
+    
+    /// Returns the top-most controller when it is safe for it to present an alert.
+    private func eligiblePresenter() -> UIViewController? {
+        guard let rootController = activeWindow?.rootViewController else { return nil }
+        
+        let presenter = topViewController(from: rootController)
+        guard !(presenter is UIAlertController),
+              !presenter.isBeingPresented,
+              !presenter.isBeingDismissed,
+              presenter.transitionCoordinator == nil else {
+            return nil
+        }
+        
+        return presenter
+    }
+    
+    /// Finds the visible controller through container and modal presentation hierarchies.
+    private func topViewController(from controller: UIViewController) -> UIViewController {
+        if let presentedController = controller.presentedViewController {
+            return topViewController(from: presentedController)
+        }
+        if let navigationController = controller as? UINavigationController,
+           let visibleController = navigationController.visibleViewController {
+            return topViewController(from: visibleController)
+        }
+        if let tabBarController = controller as? UITabBarController,
+           let selectedController = tabBarController.selectedViewController {
+            return topViewController(from: selectedController)
+        }
+        if let splitViewController = controller as? UISplitViewController,
+           let visibleController = splitViewController.viewControllers.last {
+            return topViewController(from: visibleController)
+        }
+        
+        return controller
+    }
+    
+    /// Locates the key window in a foreground-active application scene.
+    private var activeWindow: UIWindow? {
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first(where: { $0.activationState == .foregroundActive })?
+            .windows
+            .first(where: \.isKeyWindow)
+    }
+}
+#endif
 
 
 /// Runs the `body`, and present error using ``AlertManager`` if any.
