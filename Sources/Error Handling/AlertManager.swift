@@ -66,7 +66,7 @@ import ErrorManager
 /// - ``withErrorPresented(_:)->_``
 /// - ``withErrorPresented(_:)->()``
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-public struct AlertManager: LocalizableError, CustomStringConvertible {
+public struct AlertManager: LocalizableError, CustomStringConvertible, Equatable {
     
     public let titleResource: LocalizedStringResource
     
