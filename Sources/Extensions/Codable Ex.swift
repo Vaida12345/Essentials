@@ -52,6 +52,26 @@ public extension Data {
         }
     }
     
+    /// Decodes the data to the expected `type`.
+    ///
+    /// - Parameters:
+    ///   - type: The type the file represents.
+    ///   - format: The decoder to be used.
+    ///   - configuration: A decoding configuration instance that provides additional information necessary for decoding.
+    ///
+    /// - Returns: The contents decoded from `source`.
+    @available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
+    @inlinable
+    func decoded<T>(type: T.Type, format: CodingFormat, configuration: T.DecodingConfiguration) throws -> T where T: DecodableWithConfiguration {
+        if [5, 4, 3].contains(format.rawValue) {
+            let decoder = PropertyListDecoder()
+            return try decoder.decode(T.self, from: self, configuration: configuration)
+        } else {
+            let decoder = JSONDecoder()
+            return try decoder.decode(T.self, from: self, configuration: configuration)
+        }
+    }
+    
     /// The encoder and output format for archiving data.
     ///
     /// - Experiment: The `binary` format of ``CodingFormat/plist`` encoder offers the fastest coding.
@@ -141,6 +161,23 @@ public extension Decodable {
 }
 
 
+public extension DecodableWithConfiguration {
+    
+    /// Initialize from `source` which is of `format`.
+    ///
+    /// - Parameters:
+    ///   - data: The source data.
+    ///   - format: The format in which the data is.
+    ///   - configuration: A decoding configuration instance that provides additional information necessary for decoding.
+    @available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
+    @inlinable
+    init(data: Data, format: Data.CodingFormat, configuration: DecodingConfiguration) throws {
+        self = try data.decoded(type: Self.self, format: format, configuration: configuration)
+    }
+    
+}
+
+
 public extension Encodable {
     
     /// Encodes `self` to data using the `format`.
@@ -181,6 +218,54 @@ public extension Encodable {
                 encoder.outputFormatting = .withoutEscapingSlashes
             }
             return try encoder.encode(self)
+        default:
+            fatalError("Unknown format: \(format)")
+        }
+    }
+    
+}
+
+
+public extension EncodableWithConfiguration {
+    
+    /// Encodes `self` to data using the `format`.
+    ///
+    /// - Parameters:
+    ///   - format: The format used to encode data.
+    ///   - configuration: An encoding configuration instance that provides additional information necessary for encoding.
+    @available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
+    @inlinable
+    func data(using format: Data.CodingFormat, configuration: EncodingConfiguration) throws -> Data {
+        switch format.rawValue {
+        case 5:
+            let encoder = PropertyListEncoder()
+            encoder.outputFormat = .binary
+            return try encoder.encode(self, configuration: configuration)
+            
+        case 4:
+            let encoder = PropertyListEncoder()
+            encoder.outputFormat = .xml
+            return try encoder.encode(self, configuration: configuration)
+            
+        case 3:
+            let encoder = PropertyListEncoder()
+            encoder.outputFormat = .openStep
+            return try encoder.encode(self, configuration: configuration)
+            
+        case 0:
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = .prettyPrinted
+            return try encoder.encode(self, configuration: configuration)
+            
+        case 1:
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = .sortedKeys
+            return try encoder.encode(self, configuration: configuration)
+            
+        case 2:
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = .withoutEscapingSlashes
+            return try encoder.encode(self, configuration: configuration)
         default:
             fatalError("Unknown format: \(format)")
         }
