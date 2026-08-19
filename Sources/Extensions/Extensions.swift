@@ -47,7 +47,7 @@ public extension BinaryInteger {
     /// - Precondition: `data` length must equal to bit width, otherwise the result is undefined.
     @inlinable
     init(data: Data) {
-        self = data.withUnsafeBytes({ $0.load(as: Self.self) })
+        self = data.withUnsafeBytes({ $0.loadUnaligned(as: Self.self) })
     }
 
 }
@@ -293,7 +293,7 @@ extension UUID {
         assert(data.count == 16, "The data length is not 16 bytes.")
         
         let uuid = data.withUnsafeBytes { (pointer: UnsafeRawBufferPointer) in
-            pointer.load(as: uuid_t.self)
+            pointer.loadUnaligned(as: uuid_t.self)
         }
         self.init(uuid: uuid)
     }
