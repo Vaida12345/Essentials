@@ -14,19 +14,29 @@ import AppKit
 
 /// An action attached to an ``AlertManager``.
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-public struct AlertAction: Equatable {
+public struct AlertAction: Equatable, Sendable {
     
     /// The title of the action
     internal let title: LocalizedStringResource
     
     internal let isDestructive: Bool
     
-#if canImport(AppKit) && !targetEnvironment(macCatalyst)
-    internal let handler: _Action
+    internal let handler: @Sendable () -> Void
     
-    internal let selector: Selector
-#elseif canImport(UIKit)
-    internal let handler: () -> Void
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+    internal func makeAction(manager: AlertManager) -> (owner: _Action, selector: Selector) {
+        let handler = { [completionHandler = manager.completionHandler] in
+            handler()
+            completionHandler?()
+            Task { @MainActor in
+                NSApplication.shared.stopModal()
+            }
+        }
+        let owner = _Action(action: handler)
+        let selector = #selector(owner.action)
+        
+        return (owner, selector)
+    }
 #endif
     
     
@@ -36,22 +46,10 @@ public struct AlertAction: Equatable {
     ///   - title: The action title.
     ///   - isDestructive: Whether the action has a destructive effect.
     ///   - handler: A block to execute when the user selects the action.
-    public init(title: LocalizedStringResource, isDestructive: Bool = false, handler: @escaping () -> Void) {
+    public init(title: LocalizedStringResource, isDestructive: Bool = false, handler: @escaping @Sendable () -> Void) {
         self.title = title
         self.isDestructive = isDestructive
-        
-#if canImport(AppKit) && !targetEnvironment(macCatalyst)
-        let handler = {
-            handler()
-            Task { @MainActor in
-                NSApplication.shared.stopModal()
-            }
-        }
-        self.handler = _Action(action: handler)
-        self.selector = #selector(self.handler.action)
-#elseif canImport(UIKit)
         self.handler = handler
-#endif
     }
     
     /// Creates an attached action.
@@ -62,21 +60,8 @@ public struct AlertAction: Equatable {
     public init(title: LocalizedStringResource, isDestructive: Bool = false) {
         self.title = title
         self.isDestructive = isDestructive
-        
-#if canImport(AppKit) && !targetEnvironment(macCatalyst)
-        let handler = {
-            Task { @MainActor in
-                NSApplication.shared.stopModal()
-            }
-            return
-        }
-        self.handler = _Action(action: handler)
-        self.selector = #selector(self.handler.action)
-#elseif canImport(UIKit)
         self.handler = {}
-#endif
     }
-    
     
     
     public static func == (lhs: AlertAction, rhs: AlertAction) -> Bool {
