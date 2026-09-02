@@ -348,16 +348,15 @@ private final class AlertPresentationCoordinator {
         )
         
         for action in alert.actions {
-            let style: UIAlertAction.Style = action.title.key == "Cancel"
-            ? .cancel
-            : (action.isDestructive ? .destructive : .default)
+            let style: UIAlertAction.Style = action.title.key == "Cancel" ? .cancel : (action.isDestructive ? .destructive : .default)
+            
             controller.addAction(UIAlertAction(title: action.title.localized(), style: style) { [weak self] _ in
                 self?.finishPresentation()
                 action.handler()
             })
         }
         
-        if controller.actions.isEmpty {
+        if alert.actions.isEmpty {
             controller.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default) { [weak self] _ in
                 self?.finishPresentation()
             })
