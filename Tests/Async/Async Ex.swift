@@ -24,7 +24,7 @@ struct AsyncSequence {
     
     @Test func count() async throws {
         let values = Array(repeating: 0, count: 10).async
-        #expect(try await values.count(where: { $0 == 0 }) == 10)
+        #expect(await values.count(where: { $0 == 0 }) == 10)
     }
     
     @Test func compacted() async throws {
@@ -33,8 +33,8 @@ struct AsyncSequence {
     }
     
     @Test func onlyMatch() async throws {
-        #expect(try await Array(1...10).async.onlyMatch(where: { $0 == 1 }) == 1)
-        #expect(try await Array(1...10).async.onlyMatch(where: { $0 >= 1 }) == nil)
+        #expect(await Array(1...10).async.onlyMatch(where: { $0 == 1 }) == 1)
+        #expect(await Array(1...10).async.onlyMatch(where: { $0 >= 1 }) == nil)
     }
     
     @Test func plus() async throws {

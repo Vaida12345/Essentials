@@ -73,7 +73,7 @@ public func withStandardOutputCaptured(_ body: () throws -> Void) rethrows -> Fi
         // Restore stdout
         dup2(oldStdout, STDOUT_FILENO)
         close(oldStdout)
-        try! pipe.fileHandleForWriting.close()
+        try? pipe.fileHandleForWriting.close()
     }
     
     // Print something (this will be captured)
@@ -95,7 +95,7 @@ public func withStandardOutputAsyncCaptured(_ body: () async throws -> Void) asy
         // Restore stdout
         dup2(oldStdout, STDOUT_FILENO)
         close(oldStdout)
-        try! pipe.fileHandleForWriting.close()
+        try? pipe.fileHandleForWriting.close()
     }
     
     // Print something (this will be captured)

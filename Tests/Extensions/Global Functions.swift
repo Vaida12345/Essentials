@@ -27,6 +27,12 @@ struct GlobalFunctions {
         #expect(Essentials.linearInterpolate(1, in: 0...2, to: 3...5) == 4)
     }
     
+}
+
+
+@Suite(.serialized)
+struct StdOutCapture {
+    
     @Test func captureStdout() async throws {
         let handle = withStandardOutputCaptured {
             print("123", terminator: "")
@@ -42,5 +48,4 @@ struct GlobalFunctions {
         let value = try String(data: handle.readToEnd()!, encoding: .utf8)
         #expect(value == "123")
     }
-    
 }
