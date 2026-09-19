@@ -16,27 +16,83 @@ jobs:
       matrix:
         include:
           - platform: macOS
+            xcodegen_platform: macOS
             destination: platform=macOS
           - platform: iOS
+            xcodegen_platform: iOS
             destination: platform=iOS Simulator,name=iPhone 16
           - platform: tvOS
+            xcodegen_platform: tvOS
             destination: platform=tvOS Simulator,name=Apple TV
           - platform: watchOS
+            xcodegen_platform: watchOS
             destination: platform=watchOS Simulator,name=Apple Watch Series 10 (45mm)
           - platform: visionOS
+            xcodegen_platform: visionOS
             destination: platform=visionOS Simulator,name=Apple Vision Pro
 
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        env:
+          PLATFORM: ${{ matrix.xcodegen_platform }}
+        run: |
+          cat > project.yml <<'EOF'
+          name: Essentials
+
+          options:
+            deploymentTarget:
+              macOS: "12.0"
+              iOS: "15.0"
+              tvOS: "15.0"
+              watchOS: "10.0"
+              visionOS: "1.0"
+
+          targets:
+            Essentials:
+              type: framework
+              platform: ${PLATFORM}
+              sources:
+                - Sources
+
+            EssentialsTests:
+              type: bundle.unit-test
+              platform: ${PLATFORM}
+              sources:
+                - Tests
+              dependencies:
+                - target: Essentials
+
+          schemes:
+            Essentials:
+              build:
+                targets:
+                  Essentials: all
+                  EssentialsTests: [test]
+              test:
+                targets:
+                  - EssentialsTests
+          EOF
+
+          sed -i '' "s/\${PLATFORM}/${PLATFORM}/g" project.yml
+          xcodegen generate
+
       - name: Build
         run: |
           xcodebuild \
+            -project Essentials.xcodeproj \
+            -scheme Essentials \
             -destination '${{ matrix.destination }}' \
             build
 
       - name: Test
         run: |
           xcodebuild \
+            -project Essentials.xcodeproj \
+            -scheme Essentials \
             -destination '${{ matrix.destination }}' \
             test
