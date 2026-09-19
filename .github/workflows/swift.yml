@@ -53,12 +53,18 @@ jobs:
               visionOS: "1.0"
 
           targets:
+           targets:
             Essentials:
               type: framework
               platform: ${PLATFORM}
               sources:
                 - Sources
-
+              settings:
+                base:
+                  GENERATE_INFOPLIST_FILE: YES
+                  CODE_SIGNING_ALLOWED: NO
+                  CODE_SIGNING_REQUIRED: NO
+          
             EssentialsTests:
               type: bundle.unit-test
               platform: ${PLATFORM}
@@ -66,6 +72,11 @@ jobs:
                 - Tests
               dependencies:
                 - target: Essentials
+              settings:
+                base:
+                  GENERATE_INFOPLIST_FILE: YES
+                  CODE_SIGNING_ALLOWED: NO
+                  CODE_SIGNING_REQUIRED: NO
 
           schemes:
             Essentials:
