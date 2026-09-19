@@ -5,6 +5,12 @@ import PackageDescription
 
 let package = Package(
     name: "Essentials",
+    platforms: [
+        .macOS(.v12),
+        .iOS(.v15),
+        .watchOS(.v10),
+        .visionOS(.v1)
+    ],
     products: [
         .library(name: "Essentials", targets: ["Essentials"])
     ], targets: [
