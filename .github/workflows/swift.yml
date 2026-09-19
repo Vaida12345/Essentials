@@ -1,22 +1,44 @@
-# This workflow will build a Swift project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-swift
-
 name: Swift
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
-  build:
-
+  test:
+    name: Test on ${{ matrix.platform }}
     runs-on: xcode-27
 
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macOS
+            destination: platform=macOS
+          - platform: iOS
+            destination: platform=iOS Simulator,name=iPhone 16
+          - platform: tvOS
+            destination: platform=tvOS Simulator,name=Apple TV
+          - platform: watchOS
+            destination: platform=watchOS Simulator,name=Apple Watch Series 10 (45mm)
+          - platform: visionOS
+            destination: platform=visionOS Simulator,name=Apple Vision Pro
+
     steps:
-    - uses: actions/checkout@v4
-    - name: Build
-      run: swift build -v
-    - name: Run tests
-      run: swift test -v
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          xcodebuild \
+            -scheme Essentials-Package \
+            -destination '${{ matrix.destination }}' \
+            build
+
+      - name: Test
+        run: |
+          xcodebuild \
+            -scheme Essentials-Package \
+            -destination '${{ matrix.destination }}' \
+            test
