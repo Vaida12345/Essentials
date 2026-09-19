@@ -46,7 +46,7 @@ struct AsyncSequence {
         #expect(try await Task.withTimeLimit(for: .seconds(1), operation: { 1 }) == 1)
         await #expect(throws: TimeoutError.self) {
             try await Task.withTimeLimit(for: .seconds(1)) {
-                try await Task.sleep(for: .seconds(1.1))
+                try await Task.sleep(for: .seconds(2))
             }
         }
     }
