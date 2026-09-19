@@ -9,7 +9,6 @@
 import Foundation
 
 
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension AsyncSequence {
     
     /// Returns a boolean value determining whether all the elements in the array are equal given the `predicate`.

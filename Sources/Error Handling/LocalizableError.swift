@@ -10,7 +10,7 @@ import Foundation
 
 
 /// The localizable error that aims to replace `LocalizedError` by enabling Xcode to generate string resources automatically.
-@available(macOS 13, iOS 16, watchOS 9, *)
+@available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
 public protocol LocalizableError: GenericError, CustomLocalizedStringResourceConvertible {
     
     /// The error description, shown as the title in ``AlertManager``.
@@ -25,7 +25,7 @@ public protocol LocalizableError: GenericError, CustomLocalizedStringResourceCon
     
 }
 
-@available(macOS 13, iOS 16, watchOS 9, *)
+@available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
 extension LocalizableError {
     
     @inlinable
@@ -55,7 +55,7 @@ extension LocalizableError {
     
 }
 
-@available(macOS 13, iOS 16, watchOS 9, *)
+@available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
 extension LocalizedStringResource {
     
     /// Creates the localized String.

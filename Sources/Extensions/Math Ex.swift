@@ -80,7 +80,6 @@ public extension Sequence where Element: BinaryFloatingPoint {
 }
 
 
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension AccelerateBuffer where Element == Double {
     
     /// The mean value of this `Sequence`.
@@ -102,7 +101,7 @@ public extension AccelerateBuffer where Element == Double {
     
 }
 
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+
 public extension AccelerateBuffer where Element == Float {
     
     /// The mean value of this `Sequence`.

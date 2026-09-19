@@ -132,7 +132,6 @@ extension GenericError {
 }
 
 
-@available(macOS 11, iOS 14, watchOS 7, tvOS 14, *)
 extension OSLogInterpolation {
     
     @inlinable

@@ -64,7 +64,6 @@ public func linearInterpolate<T>(_ x: T, in domain: ClosedRange<T> = 0...1, to r
 ///
 /// - Returns: Empty string if the returned file handle is empty.
 @inlinable
-@available(macOS 10.15, iOS 13, watchOS 6, *)
 public func withStandardOutputCaptured(_ body: () throws -> Void) throws -> Data {
     fflush(stdout)
     
@@ -92,7 +91,6 @@ public func withStandardOutputCaptured(_ body: () throws -> Void) throws -> Data
 ///
 /// - Returns: Empty string if the returned file handle is empty.
 @inlinable
-@available(macOS 10.15, iOS 13, watchOS 6, *)
 public func withStandardOutputAsyncCaptured(_ body: () async throws -> Void) async throws -> Data {
     fflush(stdout)
     

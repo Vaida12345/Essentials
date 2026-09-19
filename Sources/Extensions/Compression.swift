@@ -9,7 +9,6 @@ import Foundation
 import Compression
 
 
-@available(macOS 10.15, iOS 13, watchOS 6, *)
 public extension Data {
     
     /// Compress the data using the given algorithm.
@@ -130,7 +129,6 @@ public extension Data {
 }
 
 
-@available(macOS 10.15, iOS 13, watchOS 6, *)
 public extension Data {
     
     /// Decompress the data using the given algorithm.

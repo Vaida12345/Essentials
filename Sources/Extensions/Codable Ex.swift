@@ -122,7 +122,6 @@ public extension Data {
         public let sortedKeys = CodingFormat(rawValue: 1)
         
         /// Specifies that the output doesn’t prefix slash characters with escape characters.
-        @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
         public var withoutEscapingSlashes: CodingFormat {
             CodingFormat(rawValue: 2)
         }

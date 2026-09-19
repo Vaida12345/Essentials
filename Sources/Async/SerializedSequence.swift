@@ -9,7 +9,6 @@
 /// Serialize two async sequences.
 ///
 /// Do not initialize this structure directly, use `AsyncSequence/+(_:_:)`
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public struct AsyncSerializedSequence<LHS, RHS>: AsyncSequence where LHS: AsyncSequence, RHS: AsyncSequence, LHS.Element == RHS.Element {
     
     private let lhs: LHS
@@ -51,7 +50,6 @@ public struct AsyncSerializedSequence<LHS, RHS>: AsyncSequence where LHS: AsyncS
 }
 
 
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 extension AsyncSequence {
     
     /// Serialize two async sequences.

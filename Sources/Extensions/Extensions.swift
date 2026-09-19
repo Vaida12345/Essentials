@@ -105,7 +105,6 @@ extension DefaultStringInterpolation {
     /// - Parameters:
     ///   - value: The raw value.
     ///   - format: The formatter applied.
-    @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
     @inlinable
     public mutating func appendInterpolation<F>(_ value: F.FormatInput, format: F) where F: FormatStyle {
         appendInterpolation(format.format(value))
@@ -115,7 +114,6 @@ extension DefaultStringInterpolation {
 
 public extension Date {
     
-    @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
     @inlinable
     func distanceToNow() -> String {
         "\(self.distance(to: Date()), format: .timeInterval)"
@@ -131,7 +129,7 @@ public extension Date {
     /// ```
     ///
     /// - Important: The `timeZone` details to `gmt`. Which is the timezone that `Date` natively works with.
-    @available(macOS 13, iOS 16, watchOS 9, *)
+    @available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
     @inlinable
     init(_ value: some StringProtocol,
          format: Date.FormatString,
@@ -158,7 +156,7 @@ public extension Date {
     /// > ```
     ///
     /// - SeeAlso: For date creation using other components, see `DateComponents`.
-    @available(macOS 13, iOS 16, watchOS 9, *)
+    @available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
     @inlinable
     init(timeZone: TimeZone = .gmt, year: Int, month: Int? = nil, day: Int? = nil, hour: Int? = nil, minute: Int? = nil, second: Int? = nil, nanosecond: Int? = nil) {
         let calendar = Calendar(identifier: .gregorian)
@@ -167,7 +165,7 @@ public extension Date {
     
 }
 
-@available(macOS 13, iOS 16, watchOS 9, *)
+@available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
 public extension Duration {
     
     /// The duration expressed in seconds.
@@ -187,7 +185,6 @@ extension FileHandle {
     
     /// Writes the `utf-8` encoding string to the handler, with the terminator.
     @available(*, deprecated, message: "The signature is catastrophically different from that of TextOutputStream.write(_:).")
-    @available(macOS 10.15.4, iOS 13.4, watchOS 6.2, tvOS 13.4, *)
     @inlinable
     public func write(_ value: String, terminator: String = "\n") throws {
         try self.write(contentsOf: (value + terminator).data(using: .utf8)!)
@@ -196,7 +193,6 @@ extension FileHandle {
 }
 
 
-@available(macOS 11, iOS 14, watchOS 7, tvOS 14, *)
 extension Logger {
     
     /// Creates a custom logger for logging to a specific subsystem and category of current function.

@@ -9,7 +9,6 @@
 /// The `async` version of the sequence.
 ///
 /// Use this only when an `AsyncSequence` is explicitly required.
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public struct AsyncSequenceContainer<Base>: AsyncSequence where Base: Sequence {
     
     private let base: Base
@@ -44,7 +43,6 @@ public struct AsyncSequenceContainer<Base>: AsyncSequence where Base: Sequence {
 }
 
 
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 extension Sequence {
     
     /// The `async` version of the sequence.
@@ -61,7 +59,6 @@ extension Sequence {
 }
 
 
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 extension AsyncSequence {
     
     /// Converts the AsyncSequence to an `Array`.

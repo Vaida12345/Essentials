@@ -6,7 +6,6 @@
 //
 
 
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 extension Task where Success == Never, Failure == Never {
     
     /// Apply the time limit to `operation`.

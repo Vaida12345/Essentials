@@ -9,7 +9,6 @@
 import Foundation
 
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FormatStyle where Self == Date.VerbatimFormatStyle {
     
     /// Formats the time interval.
@@ -24,7 +23,7 @@ extension FormatStyle where Self == Date.VerbatimFormatStyle {
     /// >    .date("\(month: .wide) \(day: .defaultDigits)")
     /// > ) // May 22
     /// > ```
-    @available(macOS 13, iOS 16, watchOS 9, *)
+    @available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
     @inlinable
     public static func date(_ format: Date.FormatString,
                             locale: Locale? = Locale(identifier: "en_us"),

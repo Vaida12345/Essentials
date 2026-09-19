@@ -9,7 +9,6 @@ import Foundation
 
 
 /// A format style that reserves the given amount of space using whitespace.
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ReserveWhitespaceFormatStyle: FormatStyle {
     
     private let spaceCount: Int
@@ -28,7 +27,6 @@ public struct ReserveWhitespaceFormatStyle: FormatStyle {
 }
 
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension FormatStyle where Self == ReserveWhitespaceFormatStyle {
     
     /// The format style that appends any necessary pre-paddings to ensure the space it takes is `count`.

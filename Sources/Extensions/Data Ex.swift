@@ -90,7 +90,6 @@ public extension Data {
 import CryptoKit
 
 
-@available(macOS 10.15, iOS 13, watchOS 6, *)
 public extension Data {
     
     /// Encrypt data with the `key` provided.
@@ -139,7 +138,6 @@ public extension Data {
 }
 
 
-@available(macOS 10.15, iOS 13, watchOS 6, *)
 extension SHA256Digest {
     
     /// The raw data that made up the hash value. The length is 32 bytes.
@@ -153,7 +151,6 @@ extension SHA256Digest {
 }
 
 
-@available(macOS 10.15, iOS 13, watchOS 6, *)
 extension SymmetricKey {
     
     /// The raw data that made up the key.

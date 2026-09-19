@@ -11,7 +11,6 @@ import CoreHaptics
 import OSLog
 
 
-@available(macOS 11, iOS 14, watchOS 7, tvOS 14, *)
 public extension CHHapticEngine {
     
     /// Creates a lazily global haptic engine.
@@ -67,7 +66,6 @@ public extension CHHapticEngine {
 }
 
 
-@available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
 public extension CHHapticPattern {
     
     /// Creates a transient pattern, registers as a tap or impulse.

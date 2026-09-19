@@ -74,7 +74,6 @@ public struct TimeIntervalFormatter<FormatInput>: FormatStyle, Sendable where Fo
 }
 
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FormatStyle where Self == TimeIntervalFormatter<Double> {
     
     /// Formats the time interval.
@@ -94,7 +93,6 @@ extension FormatStyle where Self == TimeIntervalFormatter<Double> {
 }
 
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FormatStyle where Self == TimeIntervalFormatter<Float> {
     
     /// Formats the time interval.

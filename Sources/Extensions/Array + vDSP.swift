@@ -13,7 +13,6 @@ import Accelerate
 extension Array<Float> {
     
     /// Creates an array from the given stride.
-    @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
     @inlinable
     public static func stride(
         from start: Element,
@@ -27,7 +26,6 @@ extension Array<Float> {
     }
     
     /// Creates an array from the given stride.
-    @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
     @inlinable
     public static func stride(
         from start: Element,
@@ -48,7 +46,6 @@ extension Array<Float> {
 extension Array<Double> {
     
     /// Creates an array from the given stride.
-    @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
     @inlinable
     public static func stride(
         from start: Element,
@@ -62,7 +59,6 @@ extension Array<Double> {
     }
     
     /// Creates an array from the given stride.
-    @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
     @inlinable
     public static func stride(
         from start: Element,
