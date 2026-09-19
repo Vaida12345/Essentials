@@ -34,18 +34,18 @@ struct GlobalFunctions {
 struct StdOutCapture {
     
     @Test func captureStdout() async throws {
-        let handle = withStandardOutputCaptured {
+        let handle = try withStandardOutputCaptured {
             print("123", terminator: "")
         }
-        let value = try String(data: handle.readToEnd()!, encoding: .utf8)
+        let value = String(data: handle, encoding: .utf8)
         #expect(value == "123")
     }
     
     @Test func asyncCaptureStdout() async throws {
-        let handle = await withStandardOutputAsyncCaptured {
+        let handle = try await withStandardOutputAsyncCaptured {
             print("123", terminator: "")
         }
-        let value = try String(data: handle.readToEnd()!, encoding: .utf8)
+        let value = String(data: handle, encoding: .utf8)
         #expect(value == "123")
     }
 }

@@ -61,45 +61,49 @@ public func linearInterpolate<T>(_ x: T, in domain: ClosedRange<T> = 0...1, to r
 
 
 /// Redirects the standard output and captures the result.
+///
+/// - Returns: Empty string if the returned file handle is empty.
 @inlinable
 @available(macOS 10.15, iOS 13, watchOS 6, *)
-public func withStandardOutputCaptured(_ body: () throws -> Void) rethrows -> FileHandle {
-    // Create a pipe and redirect stdout
+public func withStandardOutputCaptured(_ body: () throws -> Void) throws -> Data {
     let pipe = Pipe()
     let oldStdout = dup(STDOUT_FILENO)
-    dup2(pipe.fileHandleForWriting.fileDescriptor, STDOUT_FILENO)
     
-    defer {
-        // Restore stdout
-        dup2(oldStdout, STDOUT_FILENO)
-        close(oldStdout)
-        try? pipe.fileHandleForWriting.close()
+    do {
+        dup2(pipe.fileHandleForWriting.fileDescriptor, STDOUT_FILENO)
+        
+        defer {
+            dup2(oldStdout, STDOUT_FILENO)
+            close(oldStdout)
+        }
+        
+        try body()
+        try pipe.fileHandleForWriting.close()
     }
     
-    // Print something (this will be captured)
-    try body()
-    
-    return pipe.fileHandleForReading
+    return try pipe.fileHandleForReading.readToEnd() ?? Data()
 }
 
 /// Redirects the standard output and captures the result.
+///
+/// - Returns: Empty string if the returned file handle is empty.
 @inlinable
 @available(macOS 10.15, iOS 13, watchOS 6, *)
-public func withStandardOutputAsyncCaptured(_ body: () async throws -> Void) async rethrows -> FileHandle {
-    // Create a pipe and redirect stdout
+public func withStandardOutputAsyncCaptured(_ body: () async throws -> Void) async throws -> Data {
     let pipe = Pipe()
     let oldStdout = dup(STDOUT_FILENO)
-    dup2(pipe.fileHandleForWriting.fileDescriptor, STDOUT_FILENO)
     
-    defer {
-        // Restore stdout
-        dup2(oldStdout, STDOUT_FILENO)
-        close(oldStdout)
-        try? pipe.fileHandleForWriting.close()
+    do {
+        dup2(pipe.fileHandleForWriting.fileDescriptor, STDOUT_FILENO)
+        
+        defer {
+            dup2(oldStdout, STDOUT_FILENO)
+            close(oldStdout)
+        }
+        
+        try await body()
+        try pipe.fileHandleForWriting.close()
     }
     
-    // Print something (this will be captured)
-    try await body()
-    
-    return pipe.fileHandleForReading
+    return try pipe.fileHandleForReading.readToEnd() ?? Data()
 }
