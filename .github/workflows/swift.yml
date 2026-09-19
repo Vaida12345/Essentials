@@ -32,13 +32,11 @@ jobs:
       - name: Build
         run: |
           xcodebuild \
-            -scheme Essentials-Package \
             -destination '${{ matrix.destination }}' \
             build
 
       - name: Test
         run: |
           xcodebuild \
-            -scheme Essentials-Package \
             -destination '${{ matrix.destination }}' \
             test
