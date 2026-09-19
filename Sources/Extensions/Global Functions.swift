@@ -66,6 +66,8 @@ public func linearInterpolate<T>(_ x: T, in domain: ClosedRange<T> = 0...1, to r
 @inlinable
 @available(macOS 10.15, iOS 13, watchOS 6, *)
 public func withStandardOutputCaptured(_ body: () throws -> Void) throws -> Data {
+    fflush(stdout)
+    
     let pipe = Pipe()
     let oldStdout = dup(STDOUT_FILENO)
     
@@ -73,11 +75,13 @@ public func withStandardOutputCaptured(_ body: () throws -> Void) throws -> Data
         dup2(pipe.fileHandleForWriting.fileDescriptor, STDOUT_FILENO)
         
         defer {
+            fflush(stdout)
             dup2(oldStdout, STDOUT_FILENO)
             close(oldStdout)
         }
         
         try body()
+        fflush(stdout)
         try pipe.fileHandleForWriting.close()
     }
     
@@ -90,6 +94,8 @@ public func withStandardOutputCaptured(_ body: () throws -> Void) throws -> Data
 @inlinable
 @available(macOS 10.15, iOS 13, watchOS 6, *)
 public func withStandardOutputAsyncCaptured(_ body: () async throws -> Void) async throws -> Data {
+    fflush(stdout)
+    
     let pipe = Pipe()
     let oldStdout = dup(STDOUT_FILENO)
     
@@ -97,11 +103,13 @@ public func withStandardOutputAsyncCaptured(_ body: () async throws -> Void) asy
         dup2(pipe.fileHandleForWriting.fileDescriptor, STDOUT_FILENO)
         
         defer {
+            fflush(stdout)
             dup2(oldStdout, STDOUT_FILENO)
             close(oldStdout)
         }
         
         try await body()
+        fflush(stdout)
         try pipe.fileHandleForWriting.close()
     }
     
