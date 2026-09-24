@@ -1,22 +1,50 @@
-# This workflow will build a Swift project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-swift
-
-name: Swift
+name: Build & Test
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
-
+    name: Build on ${{ matrix.platform }}
     runs-on: xcode-27
 
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macOS
+            sdk: macosx
+            triple: arm64-apple-macos12.0
+
+          - platform: iOS
+            sdk: iphonesimulator
+            triple: arm64-apple-ios15.0-simulator
+
+          - platform: tvOS
+            sdk: appletvsimulator
+            triple: arm64-apple-tvos15.0-simulator
+
+          - platform: watchOS
+            sdk: watchsimulator
+            triple: arm64-apple-watchos10.0-simulator
+
+          - platform: visionOS
+            sdk: xrsimulator
+            triple: arm64-apple-xros1.0-simulator
+
     steps:
-    - uses: actions/checkout@v4
-    - name: Build
-      run: swift build -v
-    - name: Run tests
-      run: swift test -v
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          swift build \
+            --sdk "$(xcrun --sdk '${{ matrix.sdk }}' --show-sdk-path)" \
+            --triple '${{ matrix.triple }}' \
+            -v
+
+      - name: Test
+        if: matrix.platform == 'macOS'
+        run: swift test -v
