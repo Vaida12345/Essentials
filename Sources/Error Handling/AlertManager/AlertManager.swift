@@ -34,6 +34,8 @@ import ErrorManager
 ///
 /// Using `LocalizedStringResource`, these three `String`s would appear in *Localizable.xcstrings* automatically.
 ///
+/// When presenting an error, the title identifies the failed task or outcome, while the message explains the underlying error.
+///
 /// - Warning: Please note that `AlertManager` does not support attributed strings.
 ///
 /// - Note: The AlertManager itself conforms to `Error`, which means it could be thrown.
@@ -65,10 +67,10 @@ import ErrorManager
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 public struct AlertManager: LocalizableError, CustomStringConvertible, Equatable, Sendable {
     
-    /// The error description, shown as the title in ``AlertManager``.
+    /// The title that identifies the task or outcome presented by this alert.
     public let titleResource: LocalizedStringResource
     
-    /// The failure reason, shown as the message in ``AlertManager``.
+    /// The message that explains the underlying error or other alert detail.
     public let messageResource: LocalizedStringResource
     
     internal let actions: [AlertAction]
@@ -82,7 +84,7 @@ public struct AlertManager: LocalizableError, CustomStringConvertible, Equatable
         let message = messageResource.localized()
         
         return if !title.isEmpty {
-            "\(title.trimmingCharacters(in: ["."])): \(message)"
+            "\(title) \(message)"
         } else {
             message
         }
@@ -114,8 +116,8 @@ public struct AlertManager: LocalizableError, CustomStringConvertible, Equatable
     /// Creates an alert manager with the messages to display.
     ///
     /// - Parameters:
-    ///   - title: The title of displaying error.
-    ///   - message: The message of displaying error.
+    ///   - title: The title that identifies the task or outcome presented by this alert.
+    ///   - message: The message that explains the underlying error or other alert detail.
     @available(*, deprecated, renamed: "init(_:message:)")
     public init(title: LocalizedStringResource, message: LocalizedStringResource) {
         self.init(title: title, message: message, actions: [], completionHandler: nil)
@@ -124,8 +126,8 @@ public struct AlertManager: LocalizableError, CustomStringConvertible, Equatable
     /// Creates an alert manager with the messages to display, and the optional actions
     ///
     /// - Parameters:
-    ///   - title: The title of displaying error.
-    ///   - message: The message of displaying error.
+    ///   - title: The title that identifies the task or outcome presented by this alert.
+    ///   - message: The message that explains the underlying error or other alert detail.
     ///   - actions: The optional actions for the displaying error. The first action is considered the default action, and user can invoke this button by pressing the Return key.
     @available(*, deprecated, renamed: "init(_:message:actions:)")
     public init(title: LocalizedStringResource, message: LocalizedStringResource, @AlertAction.Builder actions: () -> [AlertAction]) {
@@ -135,8 +137,8 @@ public struct AlertManager: LocalizableError, CustomStringConvertible, Equatable
     /// Creates an alert manager with the messages to display.
     ///
     /// - Parameters:
-    ///   - title: The title of displaying error.
-    ///   - message: The message of displaying error.
+    ///   - title: The title that identifies the task or outcome presented by this alert.
+    ///   - message: The message that explains the underlying error or other alert detail.
     ///   - completionHandler: the handler that is called when the user dismisses the alert. It is called after alert action.
     public init(_ title: LocalizedStringResource, message: LocalizedStringResource, completionHandler: (@Sendable () -> Void)? = nil) {
         self.init(title: title, message: message, actions: [], completionHandler: completionHandler)
@@ -145,8 +147,8 @@ public struct AlertManager: LocalizableError, CustomStringConvertible, Equatable
     /// Creates an alert manager with the messages to display, and the optional actions
     ///
     /// - Parameters:
-    ///   - title: The title of displaying error.
-    ///   - message: The message of displaying error.
+    ///   - title: The title that identifies the task or outcome presented by this alert.
+    ///   - message: The message that explains the underlying error or other alert detail.
     ///   - actions: The optional actions for the displaying error. The first action is considered the default action, and user can invoke this button by pressing the Return key.
     ///   - completionHandler: the handler that is called when the user dismisses the alert. It is called after alert action.
     public init(_ title: LocalizedStringResource, message: LocalizedStringResource, @AlertAction.Builder actions: () -> [AlertAction], completionHandler: (@Sendable () -> Void)? = nil) {

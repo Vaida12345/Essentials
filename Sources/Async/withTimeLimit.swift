@@ -82,11 +82,6 @@ public struct TimeoutError: GenericError {
     }
     
     @inlinable
-    public var title: String? {
-        "Operation time out"
-    }
-    
-    @inlinable
     public var message: String {
         "The operation time out (\(self.duration.seconds, format: .timeInterval))"
     }

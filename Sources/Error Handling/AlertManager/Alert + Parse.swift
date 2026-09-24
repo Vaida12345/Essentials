@@ -19,42 +19,25 @@ extension AlertManager {
     }
     
     /// Creates an alert manager with a given error.
+    ///
+    /// - Parameters:
+    ///   - title: The title that identifies the failed task or outcome. When `error` is an `AlertManager`, this title replaces the nested alert's title.
+    ///   - error: The underlying error whose message and actions are presented.
+    ///   - completionHandler: The handler called after the alert is dismissed.
     public init(_ title: LocalizedStringResource, error: any Error, completionHandler: (@Sendable () -> Void)? = nil) {
         let error = AlertManager.parse(error: error)
         switch error {
-        case .localized(let _title, let _message, let actions):
-            let message: LocalizedStringResource
-            if let _title {
-                if !_message.localized().isEmpty {
-                    message = "\(_title): \(_message)"
-                } else {
-                    message = _title
-                }
-            } else {
-                message = _message
-            }
-            
+        case .localized(let message, let actions):
             self.init(
                 title: title,
                 message: message,
                 actions: actions,
                 completionHandler: completionHandler
             )
-        case .unlocalized(let _title, let _message, let actions):
-            let message: String
-            if let _title {
-                if !_message.isEmpty {
-                    message = "\(_title): \(_message)"
-                } else {
-                    message = _title
-                }
-            } else {
-                message = _message
-            }
-            
+        case .unlocalized(let message, let actions):
             self.init(
                 title: title,
-                message: "\(message)",
+                message: .init(stringLiteral: message),
                 actions: actions,
                 completionHandler: completionHandler
             )
@@ -66,8 +49,7 @@ extension AlertManager {
 #if canImport(ErrorManager)
         if let error = error as? ErrorManager {
             return .unlocalized(
-                title: error.errorDescription ?? error.description,
-                message: error.errorDescription == nil ? (error.failureReason ?? error.recoverySuggestion ?? "") : (error.failureReason ?? error.recoverySuggestion ?? error.description ?? ""),
+                message: error.errorDescription ?? error.description,
                 actions: []
             )
         }
@@ -75,40 +57,34 @@ extension AlertManager {
         
         if let error = error as? AlertManager {
             return .localized(
-                title: error.titleResource,
                 message: error.messageResource,
                 actions: error.actions
             )
         } else if let localizableError = error as? (any LocalizableError) {
             return .localized(
-                title: localizableError.titleResource,
                 message: localizableError.messageResource,
                 actions: localizableError.actions()
             )
         } else if let genericError = error as? any GenericError {
             return .unlocalized(
-                title: genericError.title,
                 message: genericError.message,
                 actions: []
             )
         } else if let localizedError = error as? LocalizedError {
             return .unlocalized(
-                title: localizedError.errorDescription ?? String(describing: localizedError),
-                message: localizedError.failureReason ?? localizedError.recoverySuggestion ?? "",
+                message: localizedError.errorDescription ?? localizedError.failureReason ?? localizedError.recoverySuggestion ?? String(describing: localizedError),
                 actions: []
             )
         } else {
             let error = error as NSError
             if error.localizedDescription.hasPrefix("The operation couldn’t be completed.") {
                 return .unlocalized(
-                    title: error.description,
-                    message: "",
+                    message: error.description,
                     actions: []
                 )
             } else {
                 return .unlocalized(
-                    title: error.localizedDescription,
-                    message: error.localizedFailureReason ?? error.localizedRecoverySuggestion ?? "",
+                    message: error.localizedDescription,
                     actions: []
                 )
             }
@@ -116,8 +92,8 @@ extension AlertManager {
     }
     
     fileprivate enum ParsedError {
-        case localized(title: LocalizedStringResource?, message: LocalizedStringResource, actions: [AlertAction])
-        case unlocalized(title: String?, message: String, actions: [AlertAction])
+        case localized(message: LocalizedStringResource, actions: [AlertAction])
+        case unlocalized(message: String, actions: [AlertAction])
     }
     
 }

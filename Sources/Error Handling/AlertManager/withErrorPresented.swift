@@ -60,7 +60,7 @@ public func withErrorPresented<T>(
 /// Runs the `body`, and present error using ``AlertManager`` if any.
 ///
 /// - Parameters:
-///   - title: The title for the error. This is recommended so the user would understand the implication of such error.
+///   - title: The title that identifies the failed task or outcome.
 ///   - body: The main body.
 ///   - completionHandler: the handler that is called when the user dismisses the alert. It is called after alert action.
 ///
@@ -86,7 +86,7 @@ public nonisolated(nonsending) func withErrorPresented<T>(
 /// Runs the `body`, and present error using ``AlertManager`` if any.
 ///
 /// - Parameters:
-///   - title: The title for the error. This is recommended so the user would understand the implication of such error.
+///   - title: The title that identifies the failed task or outcome.
 ///   - body: The main body.
 ///   - completionHandler: the handler that is called when the user dismisses the alert. It is called after alert action.
 @inlinable

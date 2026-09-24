@@ -18,6 +18,8 @@ import OSLog
 /// - Reporting error to `stdout`
 /// - Display error to user using `AlertManager`
 ///
+/// An error's ``message`` explains its underlying problem. When presenting an error with `AlertManager`, provide a title that identifies the failed task or outcome.
+///
 /// A customized error is recommended to be an `enum`.
 /// ```swift
 ///  public enum ReadDataError: GenericError {
@@ -39,9 +41,11 @@ import OSLog
 ///
 /// ## Topics
 /// ### Protocol Requirements
-/// - ``title``
 /// - ``message``
 /// - ``details``
+///
+/// ### Deprecated
+/// - ``title``
 ///
 /// ### Default Implementations
 /// - ``description``
@@ -51,16 +55,15 @@ import OSLog
 /// - ``failureReason``
 public protocol GenericError: LocalizedError, CustomStringConvertible, CustomDebugStringConvertible, Equatable {
     
-    /// The title of the error suitable for display to users.
+    /// The deprecated title of the error.
     ///
-    /// This message will be shown as the title in `AlertManager` if no other title is provided, otherwise it will be presented in the error description.
-    ///
-    /// The default implementation returns `nil`.
+    /// Use an `AlertManager` title to identify the failed task or outcome, and ``message`` to explain the underlying error.
+    @available(*, deprecated, message: "Use the alert’s title and the error’s message instead.")
     var title: String? { get }
     
-    /// The message of the error suitable for display to users.
+    /// A user-facing explanation of the underlying error.
     ///
-    /// The message will be shown as the message in `AlertManager`.
+    /// The message is shown in the body of `AlertManager`.
     var message: String { get }
     
     /// Additional details of the error suitable for debugging.
@@ -80,11 +83,7 @@ extension GenericError {
     /// - SeeAlso: ``debugDescription`` for debug details.
     @inlinable
     public var description: String {
-        if let title {
-            "\(title): \(message)"
-        } else {
-            message
-        }
+        message
     }
     
     /// A description with debug details attached.
@@ -93,13 +92,14 @@ extension GenericError {
     @inlinable
     public var debugDescription: String {
         if let details {
-            self.description + "\n\(details)"
+            self.description + "\n" + details
         } else {
             self.description
         }
     }
     
     /// Default implementation.
+    @available(*, deprecated, message: "Use the alert’s title and the error’s message instead.")
     @inlinable
     public var title: String? {
         nil
