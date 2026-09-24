@@ -26,6 +26,7 @@ extension AlertManager {
     ///   - completionHandler: The handler called after the alert is dismissed.
     public init(_ title: LocalizedStringResource, error: any Error, completionHandler: (@Sendable () -> Void)? = nil) {
         let error = AlertManager.parse(error: error)
+        
         switch error {
         case .localized(let message, let actions):
             self.init(
@@ -70,16 +71,12 @@ extension AlertManager {
                 message: genericError.message,
                 actions: []
             )
-        } else if let localizedError = error as? LocalizedError {
-            return .unlocalized(
-                message: localizedError.errorDescription ?? localizedError.failureReason ?? localizedError.recoverySuggestion ?? String(describing: localizedError),
-                actions: []
-            )
         } else {
             let error = error as NSError
             if error.localizedDescription.hasPrefix("The operation couldn’t be completed.") {
                 return .unlocalized(
-                    message: error.description,
+                    message: error.localizedFailureReason?.trimmingCharacters(in: ["(", ")"]) ??
+                                error.localizedDescription.trimmingPrefix(/The operation couldn’t be completed.\s?/).trimmingCharacters(in: ["(", ")"]),
                     actions: []
                 )
             } else {
