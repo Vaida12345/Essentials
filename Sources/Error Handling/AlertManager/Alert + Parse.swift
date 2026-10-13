@@ -24,7 +24,7 @@ extension AlertManager {
     ///   - title: The title that identifies the failed task or outcome. When `error` is an `AlertManager`, this title replaces the nested alert's title.
     ///   - error: The underlying error whose message and actions are presented.
     ///   - completionHandler: The handler called after the alert is dismissed.
-    public init(_ title: LocalizedStringResource, error: any Error, completionHandler: (@Sendable () -> Void)? = nil) {
+    public init(_ title: LocalizedStringResource, error: any Error, completionHandler: (@MainActor @Sendable () -> Void)? = nil) {
         let error = AlertManager.parse(error: error)
         
         switch error {

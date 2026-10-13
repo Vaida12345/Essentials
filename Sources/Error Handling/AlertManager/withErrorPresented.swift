@@ -38,7 +38,7 @@ public func withErrorPresented<T>(_ body: () throws -> T) -> T? {
 public nonisolated(nonsending) func withErrorPresented<T>(
     _ title: LocalizedStringResource,
     body: nonisolated(nonsending) () async throws -> T,
-    errorHandler: @escaping @Sendable () -> Void
+    errorHandler: @MainActor @escaping () -> Void
 ) async -> T? {
     await withErrorPresented(title, body: body, completionHandler: errorHandler)
 }
@@ -51,7 +51,7 @@ public nonisolated(nonsending) func withErrorPresented<T>(
 public func withErrorPresented<T>(
     _ title: LocalizedStringResource,
     body: () throws -> T,
-    errorHandler: @escaping @Sendable () -> Void
+    errorHandler: @MainActor @escaping () -> Void
 ) -> T? {
     withErrorPresented(title, body: body, completionHandler: errorHandler)
 }
@@ -73,12 +73,14 @@ public func withErrorPresented<T>(
 public nonisolated(nonsending) func withErrorPresented<T>(
     _ title: LocalizedStringResource,
     body: nonisolated(nonsending) () async throws -> T,
-    completionHandler: (@Sendable () -> Void)? = nil
+    completionHandler: (@MainActor @Sendable () -> Void)? = nil
 ) async -> T? {
     do {
         return try await body()
     } catch {
-        AlertManager(title, error: error, completionHandler: completionHandler).present()
+        Task { @MainActor in
+            AlertManager(title, error: error, completionHandler: completionHandler).present()
+        }
     }
     return nil
 }
@@ -95,12 +97,14 @@ public nonisolated(nonsending) func withErrorPresented<T>(
 public func withErrorPresented<T>(
     _ title: LocalizedStringResource,
     body: () throws -> T,
-    completionHandler: (@Sendable () -> Void)? = nil
+    completionHandler: (@MainActor @Sendable () -> Void)? = nil
 ) -> T? {
     do {
         return try body()
     } catch {
-        AlertManager(title, error: error, completionHandler: completionHandler).present()
+        Task { @MainActor in
+            AlertManager(title, error: error, completionHandler: completionHandler).present()
+        }
     }
     return nil
 }

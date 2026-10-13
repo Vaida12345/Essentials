@@ -26,71 +26,70 @@ private final class RetainingAlert: NSAlert {
 extension AlertManager {
     
     /// Presents the alert.
+    @MainActor
     public func present() {
-        Task { @MainActor in
 #if canImport(AppKit) && !targetEnvironment(macCatalyst)
-            let alert = RetainingAlert()
-            alert.informativeText = self.messageResource.localized()
-            alert.messageText = self.titleResource.localized()
-            
-            var actions = self.actions
-            if actions.isEmpty, let completionHandler {
-                actions.append(AlertAction(title: "OK")) // must have a default action, so it can call `completionHandler`.
-            } // otherwise, macOS will add a default action for NSAlert.
-            
-            if !actions.isEmpty {
-                for i in 0..<actions.count {
-                    let action = actions[i]
-                    let button = alert.addButton(withTitle: action.title.localized())
-                    
-                    let (owner, selector) = action.makeAction(manager: self)
-                    
-                    owner.parent = alert
-                    alert.actionOwners.append(owner)
-                    
-                    if action.title.key == "Cancel" {
-                        button.keyEquivalent = "\u{1b}"
-                    }
-                    
-                    button.hasDestructiveAction = action.isDestructive
-                    button.action = selector
-                    button.target = owner
+        let alert = RetainingAlert()
+        alert.informativeText = self.messageResource.localized()
+        alert.messageText = self.titleResource.localized()
+        
+        var actions = self.actions
+        if actions.isEmpty, let completionHandler {
+            actions.append(AlertAction(title: "OK")) // must have a default action, so it can call `completionHandler`.
+        } // otherwise, macOS will add a default action for NSAlert.
+        
+        if !actions.isEmpty {
+            for i in 0..<actions.count {
+                let action = actions[i]
+                let button = alert.addButton(withTitle: action.title.localized())
+                
+                let (owner, selector) = action.makeAction(manager: self)
+                
+                owner.parent = alert
+                alert.actionOwners.append(owner)
+                
+                if action.title.key == "Cancel" {
+                    button.keyEquivalent = "\u{1b}"
                 }
+                
+                button.hasDestructiveAction = action.isDestructive
+                button.action = selector // this assignment is main actor isolated
+                button.target = owner
             }
-            
-            alert.runModal()
-#elseif canImport(UIKit) && !os(watchOS)
-            AlertPresentationCoordinator.shared.enqueue(self)
-#elseif os(watchOS)
-            
-            guard let viewController = (WKApplication.shared().visibleInterfaceController ?? WKApplication.shared().rootInterfaceController) else { return }
-            
-            var actions = self.actions.map { action in
-                WKAlertAction(
-                    title: action.title.localized(),
-                    style: (action.title.key == "Cancel" ? .cancel : (action.isDestructive ? .destructive : .default)),
-                    handler: { [completionHandler = self.completionHandler] in
-                        action.handler(); completionHandler?()
-                    })
-            }
-            if actions.isEmpty {
-                actions.append(
-                    WKAlertAction(
-                        title: "OK",
-                        style: .default,
-                        handler: { [completionHandler = self.completionHandler] in
-                            completionHandler?()
-                        })
-                )
-            }
-            
-            viewController.presentAlert(
-                withTitle: self.titleResource.localized(),
-                message: self.messageResource.localized(),
-                preferredStyle: .alert,
-                actions: actions)
-#endif
         }
+        
+        alert.runModal()
+#elseif canImport(UIKit) && !os(watchOS)
+        AlertPresentationCoordinator.shared.enqueue(self)
+#elseif os(watchOS)
+        
+        guard let viewController = (WKApplication.shared().visibleInterfaceController ?? WKApplication.shared().rootInterfaceController) else { return }
+        
+        var actions = self.actions.map { action in
+            WKAlertAction(
+                title: action.title.localized(),
+                style: (action.title.key == "Cancel" ? .cancel : (action.isDestructive ? .destructive : .default)),
+                handler: { [completionHandler = self.completionHandler] in
+                    action.handler(); completionHandler?()
+                })
+        }
+        if actions.isEmpty {
+            actions.append(
+                WKAlertAction(
+                    title: "OK",
+                    style: .default,
+                    handler: { [completionHandler = self.completionHandler] in
+                        completionHandler?()
+                    })
+            )
+        }
+        
+        viewController.presentAlert(
+            withTitle: self.titleResource.localized(),
+            message: self.messageResource.localized(),
+            preferredStyle: .alert,
+            actions: actions)
+#endif
     }
     
 }
@@ -102,7 +101,7 @@ extension AlertManager {
 @available(iOS 16.0, tvOS 16.0, *)
 @MainActor
 private final class ManagedAlertController: UIAlertController {
-    var onDismiss: (() -> Void)?
+    var onDismiss: (@MainActor () -> Void)?
     
     private var didNotifyDismissal = false
     
@@ -111,7 +110,9 @@ private final class ManagedAlertController: UIAlertController {
         
         guard !didNotifyDismissal else { return }
         didNotifyDismissal = true
-        onDismiss?()
+        MainActor.assumeIsolated {
+            onDismiss?()
+        }
     }
 }
 
@@ -159,7 +160,9 @@ private final class AlertPresentationCoordinator {
             let style: UIAlertAction.Style = action.title.key == "Cancel" ? .cancel : (action.isDestructive ? .destructive : .default)
             
             controller.addAction(UIAlertAction(title: action.title.localized(), style: style) { _ in
-                action.handler()
+                MainActor.assumeIsolated {
+                    action.handler()
+                }
             })
         }
         

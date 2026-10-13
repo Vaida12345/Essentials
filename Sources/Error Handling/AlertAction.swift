@@ -21,16 +21,14 @@ public struct AlertAction: Equatable, Sendable {
     
     internal let isDestructive: Bool
     
-    internal let handler: @Sendable () -> Void
+    internal let handler: @MainActor () -> Void
     
 #if canImport(AppKit) && !targetEnvironment(macCatalyst)
     internal func makeAction(manager: AlertManager) -> (owner: _Action, selector: Selector) {
-        let handler = { [completionHandler = manager.completionHandler] in
+        let handler = { @MainActor [completionHandler = manager.completionHandler] in
             handler()
             completionHandler?()
-            Task { @MainActor in
-                NSApplication.shared.stopModal()
-            }
+            NSApplication.shared.stopModal()
         }
         let owner = _Action(action: handler)
         let selector = #selector(owner.action)
@@ -46,7 +44,7 @@ public struct AlertAction: Equatable, Sendable {
     ///   - title: The action title.
     ///   - isDestructive: Whether the action has a destructive effect.
     ///   - handler: A block to execute when the user selects the action.
-    public init(title: LocalizedStringResource, isDestructive: Bool = false, handler: @escaping @Sendable () -> Void) {
+    public init(title: LocalizedStringResource, isDestructive: Bool = false, handler: @MainActor @escaping () -> Void) {
         self.title = title
         self.isDestructive = isDestructive
         self.handler = handler
@@ -70,18 +68,19 @@ public struct AlertAction: Equatable, Sendable {
     
     internal final class _Action: NSObject {
         
-        internal let _action: () -> Void
+        internal let _action: @MainActor () -> Void
         
 #if canImport(AppKit) && !targetEnvironment(macCatalyst)
         internal weak var parent: NSAlert?
 #endif
         
-        internal init(action: @escaping () -> Void) {
+        internal init(action: @MainActor @escaping () -> Void) {
             _action = action
             super.init()
         }
         
-        @MainActor @objc internal func action() {
+        @MainActor
+        @objc internal func action() {
             _action()
             
 #if canImport(AppKit) && !targetEnvironment(macCatalyst)
