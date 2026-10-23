@@ -25,72 +25,42 @@ extension AlertManager {
     ///   - error: The underlying error whose message and actions are presented.
     ///   - completionHandler: The handler called after the alert is dismissed.
     public init(_ title: LocalizedStringResource, error: any Error, completionHandler: (@MainActor @Sendable () -> Void)? = nil) {
-        let error = AlertManager.parse(error: error)
-        
-        switch error {
-        case .localized(let message, let actions):
-            self.init(
-                title: title,
-                message: message,
-                actions: actions,
-                completionHandler: completionHandler
-            )
-        case .unlocalized(let message, let actions):
-            self.init(
-                title: title,
-                message: .init(stringLiteral: message),
-                actions: actions,
-                completionHandler: completionHandler
-            )
-        }
+        let parsed = AlertManager.parseMessage(error: error)
+        self.init(title: title, message: parsed.message, actions: parsed.actions, completionHandler: completionHandler)
     }
     
     
-    fileprivate static func parse(error: Error) -> ParsedError {
+    fileprivate static func parseMessage(error: Error) -> ParsedError {
 #if canImport(ErrorManager)
         if let error = error as? ErrorManager {
-            return .unlocalized(
-                message: error.errorDescription ?? error.description,
-                actions: []
-            )
+            return .raw(error.errorDescription ?? error.description)
         }
 #endif
         
         if let error = error as? AlertManager {
-            return .localized(
-                message: error.messageResource,
-                actions: error.actions
-            )
-        } else if let localizableError = error as? (any LocalizableError) {
-            return .localized(
-                message: localizableError.messageResource,
-                actions: localizableError.actions()
-            )
-        } else if let genericError = error as? any GenericError {
-            return .unlocalized(
-                message: genericError.message,
-                actions: []
-            )
+            return ParsedError(message: error.messageResource, actions: error.actions)
+        } else if let genericError = error as? (any GenericError) {
+            return .raw(genericError.message) // use message instead of messageResource for localizableError, as the type is allowed to override the message.
         } else {
             let error = error as NSError
             if error.localizedDescription.hasPrefix("The operation couldn’t be completed.") {
-                return .unlocalized(
-                    message: error.localizedFailureReason?.trimmingCharacters(in: ["(", ")"]) ??
-                                error.localizedDescription.trimmingPrefix(/The operation couldn’t be completed.\s?/).trimmingCharacters(in: ["(", ")"]),
-                    actions: []
+                return .raw(error.localizedFailureReason?.trimmingCharacters(in: ["(", ")"]) ??
+                            error.localizedDescription.trimmingPrefix(/The operation couldn’t be completed.\s?/).trimmingCharacters(in: ["(", ")"])
                 )
             } else {
-                return .unlocalized(
-                    message: error.localizedDescription,
-                    actions: []
-                )
+                return .raw(error.localizedDescription)
             }
         }
     }
     
-    fileprivate enum ParsedError {
-        case localized(message: LocalizedStringResource, actions: [AlertAction])
-        case unlocalized(message: String, actions: [AlertAction])
+    fileprivate struct ParsedError: Sendable, Equatable {
+        let message: TextBox
+        let actions: [AlertAction]
+        
+        static func raw(_ message: String) -> ParsedError {
+            .init(message: .raw(message), actions: [])
+        }
     }
+    
     
 }

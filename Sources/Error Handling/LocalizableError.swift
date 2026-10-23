@@ -12,6 +12,8 @@ import Foundation
 /// A localizable error that aims to replace `LocalizedError` by enabling Xcode to generate string resources automatically.
 ///
 /// An error's ``messageResource`` explains its underlying problem. When presenting an error with `AlertManager`, provide a title that identifies the failed task or outcome.
+///
+/// The ``message`` of the error is the localized ``messageResource`` by default.
 @available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
 public protocol LocalizableError: GenericError, CustomLocalizedStringResourceConvertible {
     
@@ -26,10 +28,6 @@ public protocol LocalizableError: GenericError, CustomLocalizedStringResourceCon
     /// The message is shown in the body of `AlertManager`.
     var messageResource: LocalizedStringResource { get }
     
-    /// The actions associated with the given error.
-    @AlertAction.Builder
-    func actions() -> [AlertAction]
-    
 }
 
 @available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
@@ -38,7 +36,11 @@ extension LocalizableError {
     @available(*, deprecated, message: "Use the alert’s title and the error’s message instead.")
     @inlinable
     public var title: String? {
-        titleResource?.localized()
+        if let titleResource {
+            return String(localized: titleResource)
+        } else {
+            return nil
+        }
     }
     
     @available(*, deprecated, message: "Use the alert’s title and the error’s message instead.")
@@ -47,30 +49,15 @@ extension LocalizableError {
         nil
     }
     
-    @inlinable
-    public func actions() -> [AlertAction] {
-        []
-    }
-    
+    /// The localized ``messageResource``. This value will be used as message when presented using ``AlertManager``.
     @inlinable
     public var message: String {
-        messageResource.localized()
+        String(localized: messageResource)
     }
     
     @inlinable
     public var localizedStringResource: LocalizedStringResource {
         self.messageResource
-    }
-    
-}
-
-@available(macOS 13, iOS 16, watchOS 9, tvOS 16, *)
-extension LocalizedStringResource {
-    
-    /// Creates the localized String.
-    @inlinable
-    public func localized() -> String {
-        String(localized: self)
     }
     
 }

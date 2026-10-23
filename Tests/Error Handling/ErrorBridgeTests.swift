@@ -6,7 +6,7 @@
 //
 
 import Testing
-import Essentials
+@testable import Essentials
 import Foundation
 import AVFAudio
 import AVFoundation
@@ -21,7 +21,14 @@ struct ErrorBridgeTests {
         } catch {
             let alert = AlertManager("Operation Failed", error: error)
             #expect(alert.titleResource.key == "Operation Failed")
-            #expect(alert.messageResource.key == "<This is the underlying error description>")
+            
+            switch alert.messageResource {
+            case .raw(let string):
+                #expect(string == "<This is the underlying error description>")
+            default:
+                Issue.record("Expected raw message")
+                return
+            }
         }
     }
     
@@ -30,6 +37,62 @@ struct ErrorBridgeTests {
             "<This is the underlying error description>"
         }
     }
+    
+    
+    @Test func localizedError() async throws {
+        do {
+            throw TestLocalizedError()
+        } catch {
+            let alert = AlertManager("Operation Failed", error: error)
+            #expect(alert.titleResource.key == "Operation Failed")
+            
+            switch alert.messageResource {
+            case .raw(let string): // it is stored as raw
+                #expect(string == TestLocalizedError().message)
+                #expect(string == "<This is the underlying localized error description>")
+            default:
+                Issue.record("Expected raw message")
+                return
+            }
+        }
+    }
+    
+    struct TestLocalizedError: LocalizableError {
+        var messageResource: LocalizedStringResource {
+            "<This is the underlying localized error description>"
+        }
+    }
+    
+    
+    @Test func localizedOverriddenMessageError() async throws {
+        do {
+            throw TestLocalizedOverriddenMessageError()
+        } catch {
+            let alert = AlertManager("Operation Failed", error: error)
+            #expect(alert.titleResource.key == "Operation Failed")
+            
+            switch alert.messageResource {
+            case .raw(let string): // it is stored as raw
+                #expect(string == TestLocalizedOverriddenMessageError().message)
+                #expect(string == "<This is a localized string>")
+            default:
+                Issue.record("Expected raw message")
+                return
+            }
+        }
+    }
+    
+    struct TestLocalizedOverriddenMessageError: LocalizableError {
+        var messageResource: LocalizedStringResource {
+            "<This is the underlying localized error description>"
+        }
+        
+        var message: String {
+            "<This is a localized string>"
+        }
+    }
+    
+    
     
     @Test func cocoaError() async throws {
         do {
@@ -144,20 +207,16 @@ struct ErrorBridgeTests {
         } catch {
             let manager = AlertManager("Operation Failed", error: error)
             
-            self._dump(error)
-            
             #expect(manager.titleResource.key == "Operation Failed")
             #expect(manager.message == "Swift.CancellationError error 1.") // This is the only info we have.
         }
     }
-    
-    
-    private func _dump(_ error: Error) {
-        let nsError = error as NSError
-        dump(nsError)
-        print(nsError.localizedDescription)
-        print(nsError.localizedFailureReason as Any)
-        print(nsError.localizedRecoverySuggestion as Any)
-    }
-    
+}
+
+private func _dump(_ error: Error) {
+    let nsError = error as NSError
+    dump(nsError)
+    print(nsError.localizedDescription)
+    print(nsError.localizedFailureReason as Any)
+    print(nsError.localizedRecoverySuggestion as Any)
 }

@@ -78,11 +78,11 @@ public nonisolated(nonsending) func withErrorPresented<T>(
     do {
         return try await body()
     } catch {
-        Task { @MainActor in
+        await MainActor.run {
             AlertManager(title, error: error, completionHandler: completionHandler).present()
         }
+        return nil
     }
-    return nil
 }
 
 /// Runs the `body`, and present error using ``AlertManager`` if any.
@@ -102,8 +102,14 @@ public func withErrorPresented<T>(
     do {
         return try body()
     } catch {
-        Task { @MainActor in
-            AlertManager(title, error: error, completionHandler: completionHandler).present()
+        if #available(anyAppleOS 26.0, *) {
+            Task.immediate { @MainActor in
+                AlertManager(title, error: error, completionHandler: completionHandler).present()
+            }
+        } else {
+            Task { @MainActor in
+                AlertManager(title, error: error, completionHandler: completionHandler).present()
+            }
         }
     }
     return nil

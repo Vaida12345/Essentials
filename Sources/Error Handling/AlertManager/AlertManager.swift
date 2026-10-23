@@ -65,13 +65,14 @@ import ErrorManager
 /// - ``withErrorPresented(_:body:completionHandler:)-(_,()->T,_)``
 /// - ``withErrorPresented(_:body:completionHandler:)-(_,,_)``
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-public struct AlertManager: LocalizableError, CustomStringConvertible, Equatable, Sendable {
+public struct AlertManager: GenericError, CustomStringConvertible, Equatable, Sendable {
     
     /// The title that identifies the task or outcome presented by this alert.
     public let titleResource: LocalizedStringResource
     
     /// The message that explains the underlying error or other alert detail.
-    public let messageResource: LocalizedStringResource
+    @usableFromInline
+    internal let messageResource: TextBox
     
     internal let actions: [AlertAction]
     
@@ -80,17 +81,37 @@ public struct AlertManager: LocalizableError, CustomStringConvertible, Equatable
     /// A description suitable for generic audience.
     @inlinable
     public var description: String {
-        let title = titleResource.localized()
-        let message = messageResource.localized()
+        let title = String(localized: titleResource)
+        let message = messageResource.bestLocalized()
         
         return if !title.isEmpty {
-            "\(title) \(message)"
+            "\(title): \(message)"
         } else {
             message
         }
     }
     
-    internal init(title: LocalizedStringResource, message: LocalizedStringResource, actions: [AlertAction], completionHandler: (@MainActor @Sendable () -> Void)?) {
+    @inlinable
+    public var errorDescription: String? {
+        self.messageResource.bestLocalized()
+    }
+    
+    @inlinable
+    public var failureReason: String? {
+        self.messageResource.bestLocalized()
+    }
+    
+    @inlinable
+    public var message: String {
+        self.messageResource.bestLocalized()
+    }
+    
+    @inlinable
+    public var localizedDescription: String {
+        self.messageResource.bestLocalized()
+    }
+    
+    internal init(title: LocalizedStringResource, message: TextBox, actions: [AlertAction], completionHandler: (@MainActor @Sendable () -> Void)?) {
         self.titleResource = title
         self.messageResource = message
         self.actions = actions
@@ -120,7 +141,7 @@ public struct AlertManager: LocalizableError, CustomStringConvertible, Equatable
     ///   - message: The message that explains the underlying error or other alert detail.
     @available(*, deprecated, renamed: "init(_:message:)")
     public init(title: LocalizedStringResource, message: LocalizedStringResource) {
-        self.init(title: title, message: message, actions: [], completionHandler: nil)
+        self.init(title: title, message: .localized(message), actions: [], completionHandler: nil)
     }
     
     /// Creates an alert manager with the messages to display, and the optional actions
@@ -131,7 +152,7 @@ public struct AlertManager: LocalizableError, CustomStringConvertible, Equatable
     ///   - actions: The optional actions for the displaying error. The first action is considered the default action, and user can invoke this button by pressing the Return key.
     @available(*, deprecated, renamed: "init(_:message:actions:)")
     public init(title: LocalizedStringResource, message: LocalizedStringResource, @AlertAction.Builder actions: () -> [AlertAction]) {
-        self.init(title: title, message: message, actions: actions(), completionHandler: nil)
+        self.init(title: title, message: .localized(message), actions: actions(), completionHandler: nil)
     }
     
     /// Creates an alert manager with the messages to display.
@@ -141,7 +162,7 @@ public struct AlertManager: LocalizableError, CustomStringConvertible, Equatable
     ///   - message: The message that explains the underlying error or other alert detail.
     ///   - completionHandler: the handler that is called when the user dismisses the alert. It is called after alert action.
     public init(_ title: LocalizedStringResource, message: LocalizedStringResource, completionHandler: (@MainActor @Sendable () -> Void)? = nil) {
-        self.init(title: title, message: message, actions: [], completionHandler: completionHandler)
+        self.init(title: title, message: .localized(message), actions: [], completionHandler: completionHandler)
     }
     
     /// Creates an alert manager with the messages to display, and the optional actions
@@ -152,7 +173,7 @@ public struct AlertManager: LocalizableError, CustomStringConvertible, Equatable
     ///   - actions: The optional actions for the displaying error. The first action is considered the default action, and user can invoke this button by pressing the Return key.
     ///   - completionHandler: the handler that is called when the user dismisses the alert. It is called after alert action.
     public init(_ title: LocalizedStringResource, message: LocalizedStringResource, @AlertAction.Builder actions: () -> [AlertAction], completionHandler: (@MainActor @Sendable () -> Void)? = nil) {
-        self.init(title: title, message: message, actions: actions(), completionHandler: completionHandler)
+        self.init(title: title, message: .localized(message), actions: actions(), completionHandler: completionHandler)
     }
     
     public static func == (_ lhs: AlertManager, _ rhs: AlertManager) -> Bool {

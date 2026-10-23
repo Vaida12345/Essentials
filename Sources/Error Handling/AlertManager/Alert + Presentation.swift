@@ -30,8 +30,8 @@ extension AlertManager {
     public func present() {
 #if canImport(AppKit) && !targetEnvironment(macCatalyst)
         let alert = RetainingAlert()
-        alert.informativeText = self.messageResource.localized()
-        alert.messageText = self.titleResource.localized()
+        alert.messageText = String(localized: self.titleResource)
+        alert.informativeText = self.messageResource.bestLocalized()
         
         var actions = self.actions
         if actions.isEmpty, let completionHandler {
@@ -41,7 +41,7 @@ extension AlertManager {
         if !actions.isEmpty {
             for i in 0..<actions.count {
                 let action = actions[i]
-                let button = alert.addButton(withTitle: action.title.localized())
+                let button = alert.addButton(withTitle: String(localized: action.title))
                 
                 let (owner, selector) = action.makeAction(manager: self)
                 
@@ -67,7 +67,7 @@ extension AlertManager {
         
         var actions = self.actions.map { action in
             WKAlertAction(
-                title: action.title.localized(),
+                title: String(localized: action.title),
                 style: (action.title.key == "Cancel" ? .cancel : (action.isDestructive ? .destructive : .default)),
                 handler: { [completionHandler = self.completionHandler] in
                     action.handler(); completionHandler?()
@@ -85,8 +85,8 @@ extension AlertManager {
         }
         
         viewController.presentAlert(
-            withTitle: self.titleResource.localized(),
-            message: self.messageResource.localized(),
+            withTitle: String(localized: self.titleResource),
+            message: self.messageResource.bestLocalized(),
             preferredStyle: .alert,
             actions: actions)
 #endif
@@ -147,8 +147,8 @@ private final class AlertPresentationCoordinator {
         pendingAlerts.removeFirst()
         
         let controller = ManagedAlertController(
-            title: alert.titleResource.localized(),
-            message: alert.messageResource.localized(),
+            title: String(localized: alert.titleResource),
+            message: alert.messageResource.bestLocalized(),
             preferredStyle: .alert
         )
         controller.onDismiss = { [weak self, completionHandler = alert.completionHandler] in
@@ -159,7 +159,7 @@ private final class AlertPresentationCoordinator {
         for action in alert.actions {
             let style: UIAlertAction.Style = action.title.key == "Cancel" ? .cancel : (action.isDestructive ? .destructive : .default)
             
-            controller.addAction(UIAlertAction(title: action.title.localized(), style: style) { _ in
+            controller.addAction(UIAlertAction(title: String(localized: action.title), style: style) { _ in
                 MainActor.assumeIsolated {
                     action.handler()
                 }
