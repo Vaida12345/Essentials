@@ -36,7 +36,7 @@ public extension Sequence {
     ///
     /// - Complexity: O(*n*), where *n*: The length of the sequence.
     ///
-    /// - SeeAlso: ``allEqual(on:)``
+    /// - SeeAlso: ``allEqual(_:)-((Element)->Proxy)``
     @inlinable
     func allEqual(_ predicate: (_ lhs: Element, _ rhs: Element) throws -> Bool) rethrows -> Bool {
         var iterator = self.makeIterator()

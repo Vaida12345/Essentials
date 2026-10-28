@@ -8,7 +8,7 @@
 
 /// Serialize two async sequences.
 ///
-/// Do not initialize this structure directly, use `AsyncSequence/+(_:_:)`
+/// Do not initialize this structure directly, use ``_Concurrency/AsyncSequence/+(_:_:)``
 public struct AsyncSerializedSequence<LHS, RHS>: AsyncSequence where LHS: AsyncSequence, RHS: AsyncSequence, LHS.Element == RHS.Element {
     
     private let lhs: LHS
@@ -53,10 +53,6 @@ public struct AsyncSerializedSequence<LHS, RHS>: AsyncSequence where LHS: AsyncS
 extension AsyncSequence {
     
     /// Serialize two async sequences.
-    ///
-    /// ## Topics
-    /// ### Structures
-    /// - ``AsyncSerializedSequence``
     public static func +<RHS> (_ lhs: Self, _ rhs: RHS) -> AsyncSerializedSequence<Self, RHS> where Self.Element == RHS.Element {
         AsyncSerializedSequence(lhs: lhs, rhs: rhs)
     }

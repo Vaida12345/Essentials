@@ -38,7 +38,7 @@ import ErrorManager
 ///
 /// - Warning: Please note that `AlertManager` does not support attributed strings.
 ///
-/// - Note: The AlertManager itself conforms to `Error`, which means it could be thrown.
+/// - Note: The AlertManager itself conforms to `Error`, which means it could be thrown. However, ``LocalizableError`` is better suited for situations like this.
 ///
 /// ## Topics
 ///

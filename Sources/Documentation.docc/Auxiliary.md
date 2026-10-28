@@ -7,6 +7,7 @@ Types that are not directly interacted with.
 ### Formatters
 
 - ``TimeIntervalFormatter``
+- ``ReserveWhitespaceFormatStyle``
 
 ### Async
 

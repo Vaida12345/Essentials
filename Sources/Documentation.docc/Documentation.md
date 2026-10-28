@@ -25,11 +25,6 @@ https://github.com/Vaida12345/Essentials.git
 
 ## Topics
 
-### Structures
-
-- ``JSONParser``
-- ``KeyChainManager``
-
 ### Error Handling
 
 - ``GenericError``

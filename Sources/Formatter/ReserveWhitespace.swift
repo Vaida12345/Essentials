@@ -9,6 +9,8 @@ import Foundation
 
 
 /// A format style that reserves the given amount of space using whitespace.
+///
+/// You don't initialize this structure directly, use ``Foundation/FormatStyle/reserveWhitespace(count:)`` instead.
 public struct ReserveWhitespaceFormatStyle: FormatStyle {
     
     private let spaceCount: Int
