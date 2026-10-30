@@ -17,7 +17,13 @@ struct ErrorTests {
             throw TestError()
         } catch {
             #expect("\(error)" == "error!")
-            #expect(String(reflecting: error) == "error!\nsome detail")
+            
+            let expected = """
+                error!
+                 ╰─some detail
+                    ╰─line 2
+                """
+            #expect(String(reflecting: error) == expected)
         }
     }
     
@@ -37,7 +43,10 @@ struct ErrorTests {
         }
         
         var details: String? {
-            "some detail"
+            """
+            some detail
+             ╰─line 2
+            """
         }
     }
 }

@@ -92,7 +92,7 @@ extension GenericError {
     @inlinable
     public var debugDescription: String {
         if let details {
-            self.description + "\n" + details
+            self.description + "\n ╰─" + details.split(separator: "\n", omittingEmptySubsequences: false).joined(separator: "\n   ")
         } else {
             self.description
         }
