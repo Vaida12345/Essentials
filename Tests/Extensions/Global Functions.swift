@@ -27,6 +27,13 @@ struct GlobalFunctions {
         #expect(Essentials.linearInterpolate(1, in: 0...2, to: 3...5) == 4)
     }
     
+    @Test func assertNonNilTest() async {
+        #expect(assertNonNil(1) == 1)
+        await #expect(processExitsWith: .failure) {
+            _ = assertNonNil(Optional<Int>.none)
+        }
+    }
+    
 }
 
 

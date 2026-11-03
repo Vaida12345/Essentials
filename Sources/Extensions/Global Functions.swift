@@ -22,7 +22,7 @@ import Foundation
 ///
 /// - precondition: When `max` must be greater than `min`.
 @inlinable
-public func clamp<T>(_ x: T, min: T? = nil, max: T? = nil) -> T where T: Comparable {
+public nonisolated func clamp<T>(_ x: T, min: T? = nil, max: T? = nil) -> T where T: Comparable {
     assert(max == nil || min == nil || max! >= min!, "max must be >= min")
     
     return if let min,
@@ -52,7 +52,7 @@ public func clamp<T>(_ x: T, min: T? = nil, max: T? = nil) -> T where T: Compara
 ///
 /// - Complexity: O(1)
 @inlinable
-public func linearInterpolate<T>(_ x: T, in domain: ClosedRange<T> = 0...1, to range: ClosedRange<T> = 0...1) -> T where T: FloatingPoint {
+public nonisolated func linearInterpolate<T>(_ x: T, in domain: ClosedRange<T> = 0...1, to range: ClosedRange<T> = 0...1) -> T where T: FloatingPoint {
     if x <= domain.lowerBound { return range.lowerBound }
     if x >= domain.upperBound { return range.upperBound }
     
@@ -112,4 +112,34 @@ public func withStandardOutputAsyncCaptured(_ body: () async throws -> Void) asy
     }
     
     return try pipe.fileHandleForReading.readToEnd() ?? Data()
+}
+
+
+/// Asserts that an optional value is not `nil`, with an optional message, and returns the value.
+///
+/// Use this function for internal consistency checks that are active during testing but do not affect the behavior of shipping code. To check for invalid usage in Release builds, see `precondition(_:_:file:line:)`.
+///
+/// * In playgrounds and `-Onone` builds: If `value` is `nil`, stop program execution in a debuggable state after printing `message`.
+///
+/// * In `-O` builds (the default for Xcode's Release configuration), no assertion is performed.
+///
+/// * In `-Ounchecked` builds, the optimizer may assume that `value` is never `nil`. Failure to satisfy that assumption is a serious programming error.
+///
+/// Unlike `assert(_:_:file:line:)`, `value` is evaluated in all build configurations and returned unchanged.
+///
+/// - Parameters:
+///   - value: The optional value to test. Evaluated in all builds.
+///   - message: A string to print if `value` is `nil` and assertions are enabled. The default is an empty string.
+///   - file: The file name to print with `message` if the assertion fails. The default is the file where `assertNonNil(_:_:file:line:)` is called.
+///   - line: The line number to print along with `message` if the assertion fails. The default is the line number where `assertNonNil(_:_:file:line:)` is called.
+/// - Returns: The original optional value, including `nil`.
+@inlinable
+public nonisolated func assertNonNil<T: ~Copyable>(
+    _ value: consuming T?,
+    _ message: @autoclosure () -> String = String(),
+    file: StaticString = #file,
+    line: UInt = #line
+) -> T? {
+    Swift.assert(value != nil, message(), file: file, line: line)
+    return consume value
 }
